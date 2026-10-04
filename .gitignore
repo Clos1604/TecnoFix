@@ -1,0 +1,8 @@
+# Ignore temporary files
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+
+# XAMPP / Local uploads
+/Aplicacion/sistema/uploads/

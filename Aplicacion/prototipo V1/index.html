@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Nombre que aparece en la pestaña del navegador -->
+    <title>TecnoFix | Gestión de Servicios Técnicos</title>
+
+    <!-- Archivo que contiene los estilos visuales del prototipo -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+
+    <section id="login-screen" class="screen active">
+        <div class="login-wrapper">
+
+            <div class="login-brand">
+             
+                <img src="../recursos/logo.png"
+                     alt="Logo de TecnoFix"
+                     class="login-logo">
+
+                <p class="login-subtitle">
+                    Sistema de Gestión de Servicios Técnicos
+                </p>
+            </div>
+
+            <div class="login-card">
+                <h1>Iniciar sesión</h1>
+                <p class="login-description">
+                    Ingresa tus datos para acceder al sistema.
+                </p>
+
+                <!-- Formulario visual del prototipo -->
+                <form id="login-form">
+
+                    <div class="form-group">
+                        <label for="username">Usuario</label>
+                        <input
+                            type="text"
+                            id="username"
+                            placeholder="Ej. recepcion"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="Ingrese su contraseña"
+                            required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">
+                        Iniciar sesión
+                    </button>
+                </form>
+
+                <p class="prototype-label">
+                    Prototipo V1 · Datos de demostración
+                </p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =========================================================
+         APLICACIÓN PRINCIPAL
+         ========================================================= -->
+    <section id="app-screen" class="screen">
+
+        <!-- =====================================================
+             MENÚ LATERAL
+             Contiene los módulos principales definidos para V1.
+             ===================================================== -->
+        <aside class="sidebar">
+
+            <div class="sidebar-brand">
+                <img src="../recursos/logo.png"
+                     alt="TecnoFix"
+                     class="sidebar-logo">
+            </div>
+
+            <div class="user-mini">
+                <div class="user-avatar">AD</div>
+                <div>
+                    <strong>Administrador</strong>
+                    <span>Propietario</span>
+                </div>
+            </div>
+
+            <nav class="main-nav">
+
+                <!-- Cada botón tiene data-section para indicar
+                     qué pantalla debe mostrarse al hacer clic. -->
+                <button class="nav-item active" data-section="dashboard">
+                    <span class="nav-icon">⌂</span>
+                    Dashboard
+                </button>
+
+                <button class="nav-item" data-section="clientes">
+                    <span class="nav-icon">◉</span>
+                    Clientes
+                </button>
+
+                <button class="nav-item" data-section="equipos">
+                    <span class="nav-icon">▣</span>
+                    Equipos
+                </button>
+
+                <button class="nav-item" data-section="ordenes">
+                    <span class="nav-icon">▤</span>
+                    Órdenes de servicio
+                </button>
+
+                <button class="nav-item" data-section="tecnicos">
+                    <span class="nav-icon">◌</span>
+                    Técnicos
+                </button>
+
+                <button class="nav-item" data-section="almacen">
+                    <span class="nav-icon">▥</span>
+                    Almacén
+                </button>
+
+                <button class="nav-item" data-section="finanzas">
+                    <span class="nav-icon">$</span>
+                    Finanzas
+                </button>
+
+                <button class="nav-item" data-section="reportes">
+                    <span class="nav-icon">▥</span>
+                    Reportes
+                </button>
+            </nav>
+
+            <!-- Cierre de sesión simulado -->
+            <button id="logout-btn" class="logout-btn">
+                Cerrar sesión
+            </button>
+        </aside>
+
+
+        <!-- =====================================================
+             CONTENIDO PRINCIPAL
+             Aquí se muestran las diferentes pantallas del sistema.
+             ===================================================== -->
+        <main class="main-content">
+
+            <!-- =================================================
+                 DASHBOARD
+                 Resumen general del negocio.
+                 ================================================= -->
+            <section id="dashboard" class="page-section active">
+
+                <div class="page-header">
+                    <div>
+                        <span class="section-label">PANEL PRINCIPAL</span>
+                        <h2>Resumen del negocio</h2>
+                        <p>Consulta rápida del estado actual de TecnoFix.</p>
+                    </div>
+                    <span class="date-badge">22 de agosto de 2026</span>
+                </div>
+
+                <!-- Tarjetas de indicadores -->
+                <div class="stats-grid">
+
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span>Órdenes pendientes</span>
+                            <span class="stat-icon blue">12</span>
+                        </div>
+                        <strong>12</strong>
+                        <small>Requieren seguimiento</small>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span>En reparación</span>
+                            <span class="stat-icon orange">05</span>
+                        </div>
+                        <strong>5</strong>
+                        <small>Trabajos activos</small>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span>Listas para entregar</span>
+                            <span class="stat-icon green">03</span>
+                        </div>
+                        <strong>3</strong>
+                        <small>Esperando al cliente</small>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span>Solicitudes de repuestos</span>
+                            <span class="stat-icon purple">02</span>
+                        </div>
+                        <strong>2</strong>
+                        <small>Pendientes de revisión</small>
+                    </article>
+                </div>
+
+                <!-- Tabla de órdenes recientes -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Órdenes recientes</h3>
+                            <p>Últimos servicios registrados.</p>
+                        </div>
+                        <button class="btn btn-secondary" data-go="ordenes">
+                            Ver todas
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Orden</th>
+                                    <th>Cliente</th>
+                                    <th>Equipo</th>
+                                    <th>Técnico</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="strong">#0001</td>
+                                    <td>Juan Pérez</td>
+                                    <td>Lenovo IdeaPad 3</td>
+                                    <td>Carlos</td>
+                                    <td><span class="status status-repair">En reparación</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="strong">#0002</td>
+                                    <td>María López</td>
+                                    <td>HP 15-DW</td>
+                                    <td>José</td>
+                                    <td><span class="status status-diagnosis">En diagnóstico</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="strong">#0003</td>
+                                    <td>Pedro García</td>
+                                    <td>Dell Inspiron</td>
+                                    <td>Carlos</td>
+                                    <td><span class="status status-ready">Listo</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 CLIENTES
+                 ================================================= -->
+            <section id="clientes" class="page-section">
+
+                <div class="page-header">
+                    <div>
+                        <span class="section-label">GESTIÓN</span>
+                        <h2>Clientes</h2>
+                        <p>Registro y consulta de clientes.</p>
+                    </div>
+                    <button class="btn btn-primary">+ Nuevo cliente</button>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Clientes registrados</h3>
+                            <p>Información básica de los clientes.</p>
+                        </div>
+                        <input class="search-input" type="search" placeholder="Buscar cliente...">
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Teléfono</th>
+                                    <th>Correo</th>
+                                    <th>Servicios</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="strong">Juan Pérez</td>
+                                    <td>8888-1111</td>
+                                    <td>juan@email.com</td>
+                                    <td>4</td>
+                                </tr>
+                                <tr>
+                                    <td class="strong">María López</td>
+                                    <td>8888-2222</td>
+                                    <td>maria@email.com</td>
+                                    <td>2</td>
+                                </tr>
+                                <tr>
+                                    <td class="strong">Pedro García</td>
+                                    <td>8888-3333</td>
+                                    <td>pedro@email.com</td>
+                                    <td>1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 EQUIPOS
+                 ================================================= -->
+            <section id="equipos" class="page-section">
+
+                <div class="page-header">
+                    <div>
+                        <span class="section-label">GESTIÓN</span>
+                        <h2>Equipos</h2>
+                        <p>Equipos registrados y asociados a clientes.</p>
+                    </div>
+                    <button class="btn btn-primary">+ Registrar equipo</button>
+                </div>
+
+                <div class="panel">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Equipo</th>
+                                    <th>Marca</th>
+                                    <th>Modelo</th>
+                                    <th>Cliente</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="strong">Laptop</td>
+                                    <td>Lenovo</td>
+                                    <td>IdeaPad 3</td>
+                                    <td>Juan Pérez</td>
+                                    <td><span class="status status-repair">En reparación</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="strong">Laptop</td>
+                                    <td>HP</td>
+                                    <td>15-DW</td>
+                                    <td>María López</td>
+                                    <td><span class="status status-diagnosis">En diagnóstico</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="strong">PC</td>
+                                    <td>Dell</td>
+                                    <td>Inspiron</td>
+                                    <td>Pedro García</td>
+                                    <td><span class="status status-ready">Listo</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 ÓRDENES DE SERVICIO
+                 ================================================= -->
+            <section id="ordenes" class="page-section">
+
+                <div class="page-header">
+                    <div>
+                        <span class="section-label">OPERACIONES</span>
+                        <h2>Órdenes de servicio</h2>
+                        <p>Seguimiento del proceso de reparación.</p>
+                    </div>
+                    <button class="btn btn-primary">+ Nueva orden</button>
+                </div>
+
+                <div class="filter-bar">
+                    <input class="search-input" type="search" placeholder="Buscar por orden o cliente...">
+
+                    <select class="select-input">
+                        <option>Todos los estados</option>
+                        <option>Recibido</option>
+                        <option>Asignado</option>
+                        <option>En diagnóstico</option>
+                        <option>En reparación</option>
+                        <option>Listo para entregar</option>
+                        <option>Entregado</option>
+                    </select>
+                </div>
+
+                <div class="panel">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Orden</th>
+                                    <th>Cliente</th>
+                                    <th>Equipo</th>
+                                    <th>Técnico</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="strong">#0001</td>
+                                    <td>Juan Pérez</td>
+                                    <td>Lenovo IdeaPad 3</td>
+                                    <td>Carlos</td>
+                                    <td><span class="status status-repair">En reparación</span></td>
+                                    <td><button class="link-btn">Ver detalle</button></td>
+                                </tr>
+                                <tr>
+                                    <td class="strong">#0002</td>
+                                    <td>María López</td>
+                                    <td>HP 15-DW</td>
+                                    <td>José</td>
+                                    <td><span class="status status-diagnosis">En diagnóstico</span></td>
+                                    <td><button class="link-btn">Ver detalle</button></td>
+                                </tr>
+                                <tr>
+                                    <td class="strong">#0003</td>
+                                    <td>Pedro García</td>
+                                    <td>Dell Inspiron</td>
+                                    <td>Carlos</td>
+                                    <td><span class="status status-ready">Listo</span></td>
+                                    <td><button class="link-btn">Ver detalle</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Detalle visual de una orden para el prototipo -->
+                <div class="panel order-detail">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Detalle de orden #0001</h3>
+                            <p>Información técnica de la reparación.</p>
+                        </div>
+                        <span class="status status-repair">En reparación</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div><span>Cliente</span><strong>Juan Pérez</strong></div>
+                        <div><span>Equipo</span><strong>Lenovo IdeaPad 3</strong></div>
+                        <div><span>Técnico</span><strong>Carlos Rodríguez</strong></div>
+                        <div><span>Fecha de ingreso</span><strong>20/08/2026</strong></div>
+                    </div>
+
+                    <div class="detail-block">
+                        <span>Problema reportado</span>
+                        <p>El equipo no enciende y presenta problemas al conectar el cargador.</p>
+                    </div>
+
+                    <div class="detail-block">
+                        <span>Diagnóstico</span>
+                        <p>Falla en el sistema de alimentación. Se requiere revisar el cargador.</p>
+                    </div>
+
+                    <div class="detail-actions">
+                        <button class="btn btn-secondary">Actualizar estado</button>
+                        <button class="btn btn-secondary">Solicitar repuesto</button>
+                        <button class="btn btn-primary">Registrar reparación</button>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 TÉCNICOS
+                 ================================================= -->
+            <section id="tecnicos" class="page-section">
+
+                <div class="page-header">
+                    <div>
+                        <span class="section-label">PERSONAL</span>
+                        <h2>Técnicos</h2>
+                        <p>Consulta del personal técnico y sus órdenes.</p>
+                    </div>
+                    <button class="btn btn-primary">+ Nuevo técnico</button>
+                </div>
+
+                <div class="people-grid">
+                    <article class="person-card">
+                        <div class="avatar">CR</div>
+                        <div>
+                            <strong>Carlos Rodríguez</strong>
+                            <span>5 órdenes activas</span>
+                        </div>
+                    </article>
+
+                    <article class="person-card">
+                        <div class="avatar">JM</div>
+                        <div>
+                            <strong>José Martínez</strong>
+                            <span>3 órdenes activas</span>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 ALMACÉN
+                 ================================================= -->
+            <section id="almacen" class="page-section">
+
+                <div class="page-header">
+                    <div>
+                        <span class="section-label">INVENTARIO</span>
+                        <h2>Almacén</h2>
+                        <p>Control básico de repuestos.</p>
+                    </div>
+                    <button class="btn btn-primary">+ Nuevo repuesto</button>
+                </div>
+
+                <div class="stats-grid three">
+
+                    <article class="stat-card">
+                        <span>Total de repuestos</span>
+                        <strong>48</strong>
+                        <small>Registrados</small>
+                    </article>
+
+                    <article class="stat-card">
+                        <span>Stock bajo</span>
+                        <strong>6</strong>
+                        <small>Requieren atención</small>
+                    </article>
+
+                    <article class="stat-card">
+                        <span>Agotados</span>
+                        <strong>2</strong>
+                        <small>Sin existencias</small>
+                    </article>
+                </div>
+
+                <div class="panel">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Repuesto</th>
+                                    <th>Existencia</th>
+                                    <th>Stock mínimo</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="strong">Cargador HP 65W</td>
+                                    <td>5</td>
+                                    <td>2</td>
+                                    <td><span class="status status-available">Disponible</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="strong">Pantalla Lenovo 15.6"</td>
+                                    <td>1</td>
+                                    <td>2</td>
+                                    <td><span class="status status-warning">Stock bajo</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="strong">SSD 480 GB</td>
+                                    <td>0</td>
+                                    <td>2</td>
+                                    <td><span class="status status-danger">Agotado</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Solicitudes de repuestos -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Solicitudes de repuestos</h3>
+                            <p>Solicitudes realizadas por técnicos.</p>
+                        </div>
+                    </div>
+
+                    <div class="request-card">
+                        <div>
+                            <strong>Solicitud #SR-001</strong>
+                            <span>Pantalla Lenovo 15.6" · Orden #0001</span>
+                        </div>
+                        <span class="status status-warning">Pendiente</span>
+                    </div>
+
+                    <div class="request-card">
+                        <div>
+                            <strong>Solicitud #SR-002</strong>
+                            <span>Cargador HP 65W · Orden #0004</span>
+                        </div>
+                        <span class="status status-ready">Disponible</span>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 FINANZAS
+                 ================================================= -->
+            <section id="finanzas" class="page-section">
+
+                <div class="page-header">
+                    <div>
+                        <span class="section-label">CONTROL FINANCIERO</span>
+                        <h2>Finanzas</h2>
+                        <p>Resumen básico de pagos e ingresos.</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid three">
+                    <article class="stat-card">
+                        <span>Ingresos del mes</span>
+                        <strong>C$ 28,450</strong>
+                        <small>Servicios registrados</small>
+                    </article>
+
+                    <article class="stat-card">
+                        <span>Pagos pendientes</span>
+                        <strong>4</strong>
+                        <small>Órdenes pendientes</small>
+                    </article>
+
+                    <article class="stat-card">
+                        <span>Pagos parciales</span>
+                        <strong>2</strong>
+                        <small>Requieren seguimiento</small>
+                    </article>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Últimos pagos</h3>
+                            <p>Movimientos de demostración.</p>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Orden</th>
+                                    <th>Cliente</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="strong">#0003</td>
+                                    <td>Pedro García</td>
+                                    <td>C$ 1,850</td>
+                                    <td><span class="status status-available">Pagado</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="strong">#0004</td>
+                                    <td>Ana Torres</td>
+                                    <td>C$ 900</td>
+                                    <td><span class="status status-warning">Parcial</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 REPORTES
+                 ================================================= -->
+            <section id="reportes" class="page-section">
+
+                <div class="page-header">
+                    <div>
+                        <span class="section-label">INFORMACIÓN</span>
+                        <h2>Reportes</h2>
+                        <p>Información general para supervisar el negocio.</p>
+                    </div>
+                </div>
+
+                <div class="report-grid">
+
+                    <article class="report-card">
+                        <div class="report-icon">01</div>
+                        <h3>Órdenes por estado</h3>
+                        <p>Consulta de trabajos recibidos, en diagnóstico, reparación y terminados.</p>
+                        <button class="link-btn">Ver reporte →</button>
+                    </article>
+
+                    <article class="report-card">
+                        <div class="report-icon">02</div>
+                        <h3>Inventario</h3>
+                        <p>Existencias actuales, movimientos y repuestos con stock bajo.</p>
+                        <button class="link-btn">Ver reporte →</button>
+                    </article>
+
+                    <article class="report-card">
+                        <div class="report-icon">03</div>
+                        <h3>Servicios por técnico</h3>
+                        <p>Seguimiento de las órdenes asignadas a cada técnico.</p>
+                        <button class="link-btn">Ver reporte →</button>
+                    </article>
+
+                    <article class="report-card">
+                        <div class="report-icon">04</div>
+                        <h3>Ingresos</h3>
+                        <p>Resumen básico de pagos relacionados con los servicios realizados.</p>
+                        <button class="link-btn">Ver reporte →</button>
+                    </article>
+                </div>
+            </section>
+
+        </main>
+    </section>
+
+    <!-- Archivo JavaScript que controla la navegación -->
+    <script src="js/app.js"></script>
+</body>
+</html>
