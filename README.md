@@ -34,7 +34,7 @@ TecnoFix/
 ├── Aplicacion/
 │   ├── prototipo V1/          # Primera versión estática presentada
 │   ├── prototipo V2/          # Segunda versión con mejoras visuales y de usabilidad
-│   ├── sistema/               # SISTEMA IMPLEMENTADO FUNCIONAL (PHP + MYSQL)
+│   ├── prototipo V3/          # TERCER PROTOTIPO FUNCIONAL IMPLEMENTADO (PHP + MYSQL)
 │   │   ├── api/               # Endpoints JSON (login.php, logout.php, ordenes.php)
 │   │   ├── config/            # Conexión PDO (conexion.php)
 │   │   ├── controllers/       # AuthController.php, OrdenesController.php
