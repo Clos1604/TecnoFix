@@ -1,6 +1,6 @@
 -- =========================================================
 -- TECNOFIX - BASE DE DATOS OFICIAL (MYSQL / MARIADB)
--- Implementación para el Segundo Parcial
+-- Implementación para el Segundo Parcial - Prototipo V3
 -- =========================================================
 
 CREATE DATABASE IF NOT EXISTS `tecnofix_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -23,6 +23,7 @@ CREATE TABLE `usuarios` (
     `password_hash` VARCHAR(255) NOT NULL,
     `rol` ENUM('Administrador', 'Tecnico', 'Recepcion') NOT NULL DEFAULT 'Recepcion',
     `estado` ENUM('Activo', 'Inactivo') NOT NULL DEFAULT 'Activo',
+    `debe_cambiar_pass` TINYINT(1) NOT NULL DEFAULT 0, -- 1: Debe cambiar clave en primer login
     `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -45,7 +46,7 @@ CREATE TABLE `clientes` (
 CREATE TABLE `equipos` (
     `id_equipo` INT AUTO_INCREMENT PRIMARY KEY,
     `id_cliente` INT NOT NULL,
-    `tipo_dispositivo` VARCHAR(50) NOT NULL, -- Laptop, Smartphone, Desktop, Tablet, etc.
+    `tipo_dispositivo` VARCHAR(50) NOT NULL,
     `marca` VARCHAR(50) NOT NULL,
     `modelo` VARCHAR(50) NOT NULL,
     `numero_serie` VARCHAR(100),
@@ -58,7 +59,7 @@ CREATE TABLE `equipos` (
 -- ---------------------------------------------------------
 CREATE TABLE `ordenes_servicio` (
     `id_orden` INT AUTO_INCREMENT PRIMARY KEY,
-    `codigo_orden` VARCHAR(20) NOT NULL UNIQUE, -- Ej: ORD-2026-001
+    `codigo_orden` VARCHAR(20) NOT NULL UNIQUE,
     `id_cliente` INT NOT NULL,
     `id_equipo` INT NOT NULL,
     `id_tecnico` INT NULL,
@@ -91,7 +92,7 @@ CREATE TABLE `historial_ordenes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------
--- 6. TABLA: migracion_log (Para Entregable 6 - Migración de Datos)
+-- 6. TABLA: migracion_log
 -- ---------------------------------------------------------
 CREATE TABLE `migracion_log` (
     `id_log` INT AUTO_INCREMENT PRIMARY KEY,
@@ -104,22 +105,18 @@ CREATE TABLE `migracion_log` (
     `fecha_ejecucion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 -- =========================================================
--- DATOS INICIALES (SEED DATA DE DEMOSTRACIÓN Y PRUEBAS)
--- Contraseñas hasheadas con BCRYPT:
---   'admin123'    => $2y$10$w8T07S6.l/aNfC9Z1mH2eO0O1kG9x1u5q0G4o.Xn1.Qz3Fz/N.P1O
---   'tecnico123'  => $2y$10$w8T07S6.l/aNfC9Z1mH2eO0O1kG9x1u5q0G4o.Xn1.Qz3Fz/N.P1O
---   'recepcion123'=> $2y$10$w8T07S6.l/aNfC9Z1mH2eO0O1kG9x1u5q0G4o.Xn1.Qz3Fz/N.P1O
+-- DATOS INICIALES (SEED DATA)
 -- =========================================================
 
-INSERT INTO `usuarios` (`id_usuario`, `nombre`, `email`, `password_hash`, `rol`, `estado`) VALUES
-(1, 'Administrador TecnoFix', 'admin@tecnofix.com', '$2y$10$K2e.nIqjH35rXGZpYwS28.3m0F5Q7u.Xn1.Qz3Fz/N.P1O9Yn/6OW', 'Administrador', 'Activo'),
-(2, 'Carlos Ruiz (Técnico Senior)', 'carlos.tecnico@tecnofix.com', '$2y$10$K2e.nIqjH35rXGZpYwS28.3m0F5Q7u.Xn1.Qz3Fz/N.P1O9Yn/6OW', 'Tecnico', 'Activo'),
-(3, 'María López (Recepción)', 'maria.recepcion@tecnofix.com', '$2y$10$K2e.nIqjH35rXGZpYwS28.3m0F5Q7u.Xn1.Qz3Fz/N.P1O9Yn/6OW', 'Recepcion', 'Activo');
+INSERT INTO `usuarios` (`id_usuario`, `nombre`, `email`, `password_hash`, `rol`, `estado`, `debe_cambiar_pass`) VALUES
+(1, 'Administrador TecnoFix', 'admin@tecnofix.com', '$2y$10$K2e.nIqjH35rXGZpYwS28.3m0F5Q7u.Xn1.Qz3Fz/N.P1O9Yn/6OW', 'Administrador', 'Activo', 0),
+(2, 'Carlos Ruiz (Técnico Senior)', 'carlos.tecnico@tecnofix.com', '$2y$10$K2e.nIqjH35rXGZpYwS28.3m0F5Q7u.Xn1.Qz3Fz/N.P1O9Yn/6OW', 'Tecnico', 'Activo', 0),
+(3, 'María López (Recepción)', 'maria.recepcion@tecnofix.com', '$2y$10$K2e.nIqjH35rXGZpYwS28.3m0F5Q7u.Xn1.Qz3Fz/N.P1O9Yn/6OW', 'Recepcion', 'Activo', 0),
+(4, 'Pedro Ramírez (Técnico Nuevo)', 'pedro.nuevo@tecnofix.com', '$2y$10$w8T07S6.l/aNfC9Z1mH2eO0O1kG9x1u5q0G4o.Xn1.Qz3Fz/N.P1O', 'Tecnico', 'Activo', 1);
 
 INSERT INTO `clientes` (`id_cliente`, `nombre_completo`, `cedula_rnc`, `telefono`, `email`, `direccion`) VALUES
-(1, 'Juan Pérez', '001-1234567-8', '809-555-0101', 'juan.perez@email.com', 'Av. 27 de Febrero #45, Santo Domingo'),
+(1, 'Juan Pérez', '001-1234567-8', '809-555-0101', 'juan.perez@email.com', 'Av. 27 de Febrero #45, SD'),
 (2, 'Ana Gómez', '001-7654321-9', '809-555-0202', 'ana.gomez@email.com', 'Calle El Sol #12, Santiago'),
 (3, 'Empresa Inversiones SRL', '130-998877-1', '809-555-0303', 'contacto@inversiones.com', 'Torre Empresarial Piso 5');
 

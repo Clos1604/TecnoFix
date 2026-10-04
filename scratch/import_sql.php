@@ -4,7 +4,7 @@ try {
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
     
-    $sql = file_get_contents(__DIR__ . '/../Aplicacion/sistema/database/tecnofix_db.sql');
+    $sql = file_get_contents(__DIR__ . '/../Aplicacion/prototipo V3/database/tecnofix_db.sql');
     
     // Execute SQL queries
     $pdo->exec($sql);

@@ -5,6 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $isLogged = !empty($_SESSION['usuario_logged']) && $_SESSION['usuario_logged'] === true;
 $userName = $_SESSION['user_nombre'] ?? 'Administrador TecnoFix';
 $userRol = $_SESSION['user_rol'] ?? 'Administrador';
+$debeCambiarPass = !empty($_SESSION['debe_cambiar_pass']) && $_SESSION['debe_cambiar_pass'] === 1;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -90,7 +91,7 @@ $userRol = $_SESSION['user_rol'] ?? 'Administrador';
                     <span class="nav-icon">◉</span> Clientes
                 </button>
                 <button class="nav-item" data-section="tecnicos">
-                    <span class="nav-icon">◌</span> Técnicos
+                    <span class="nav-icon">👥</span> Usuarios y Personal
                 </button>
                 <button class="nav-item" data-section="reportes">
                     <span class="nav-icon">📊</span> Reportes
@@ -295,27 +296,39 @@ $userRol = $_SESSION['user_rol'] ?? 'Administrador';
             </section>
 
             <!-- -----------------------------------------------------
-                 SECCIÓN: TÉCNICOS
+                 SECCIÓN: USUARIOS Y PERSONAL (GESTIÓN ADMIN)
                  ----------------------------------------------------- -->
             <section id="tecnicos" class="page-section">
                 <div class="page-header">
                     <div>
-                        <span class="section-label">PERSONAL</span>
-                        <h2>Técnicos del Taller</h2>
-                        <p>Asignación de personal técnico y especialidades.</p>
+                        <span class="section-label">GESTIÓN DE PERSONAL</span>
+                        <h2>Usuarios del Sistema</h2>
+                        <p>Administración de usuarios, asignación de roles y clave por defecto (rol+123).</p>
                     </div>
+                    <button class="btn btn-primary" id="btn-crear-usuario">+ Crear Nuevo Usuario</button>
                 </div>
-                <div class="stats-grid">
-                    <article class="stat-card">
-                        <h3>Carlos Ruiz</h3>
-                        <p><strong>Especialidad:</strong> Micro-soldadura y Laptops</p>
-                        <span class="badge badge-success">Disponible</span>
-                    </article>
-                    <article class="stat-card">
-                        <h3>María López</h3>
-                        <p><strong>Especialidad:</strong> Recepción y Diagnóstico Rápido</p>
-                        <span class="badge badge-info">En Atención</span>
-                    </article>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Lista de Usuarios Registrados</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Email / Usuario</th>
+                                    <th>Rol Asignado</th>
+                                    <th>Clave Inicial por Defecto</th>
+                                    <th>Estado Contraseña</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <!-- Carga dinámica -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 
@@ -341,8 +354,80 @@ $userRol = $_SESSION['user_rol'] ?? 'Administrador';
     </section>
 
     <!-- =========================================================
-         MODAL: CREAR NUEVA ÓRDEN DE SERVICIO
+         MODAL: CREAR NUEVO USUARIO (EXCLUSIVO ADMINISTRADOR)
          ========================================================= -->
+    <div id="modal-crear-usuario" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registrar Nuevo Usuario</h3>
+                <button class="modal-close" id="close-modal-usuario">&times;</button>
+            </div>
+            <form id="form-crear-usuario">
+                <div class="modal-body">
+                    <div class="alert alert-info" style="font-size:13px; margin-bottom:16px;">
+                        💡 <strong>Nota del Sistema:</strong> La contraseña por defecto se generará automáticamente como <strong>rol+123</strong> (ejemplo: <code>tecnico123</code>, <code>recepcion123</code>, <code>administrador123</code>). El usuario deberá cambiarla obligatoriamente al iniciar sesión por primera vez.
+                    </div>
+                    <div class="form-group">
+                        <label for="nuevo_user_nombre">Nombre Completo *</label>
+                        <input type="text" id="nuevo_user_nombre" name="nombre" required placeholder="Ej: Pedro Ramírez">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nuevo_user_email">Correo Electrónico (Usuario) *</label>
+                        <input type="email" id="nuevo_user_email" name="email" required placeholder="Ej: pedro.ramirez@tecnofix.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nuevo_user_rol">Rol del Sistema *</label>
+                        <select id="nuevo_user_rol" name="rol" required>
+                            <option value="Tecnico">Técnico</option>
+                            <option value="Recepcion">Recepción</option>
+                            <option value="Administrador">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-cancelar-crear-usuario">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODAL: CAMBIO DE CONTRASEÑA OBLIGATORIO (PRIMER INICIO)
+         ========================================================= -->
+    <div id="modal-cambiar-password-obligatorio" class="modal <?php echo ($isLogged && $debeCambiarPass) ? 'active' : ''; ?>" style="z-index: 2000; background: rgba(15, 23, 42, 0.9);">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header" style="background-color: #fef3c7;">
+                <h3 style="color: #92400e;">🔒 Cambio de Contraseña Obligatorio</h3>
+            </div>
+            <form id="form-cambiar-password-obligatorio">
+                <div class="modal-body">
+                    <p style="font-size: 14px; margin-bottom: 16px; color: #475569;">
+                        Has iniciado sesión con la contraseña por defecto de tu rol. Por motivos de seguridad, debes actualizar tu contraseña antes de continuar utilizando el sistema.
+                    </p>
+
+                    <div id="pass-change-alert" class="alert alert-danger" style="display: none;"></div>
+
+                    <div class="form-group">
+                        <label for="nueva_password">Nueva Contraseña * (Mínimo 6 caracteres)</label>
+                        <input type="password" id="nueva_password" name="nueva_password" required minlength="6" placeholder="Ingresa tu nueva contraseña">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmar_password">Confirmar Nueva Contraseña *</label>
+                        <input type="password" id="confirmar_password" name="confirmar_password" required minlength="6" placeholder="Repite tu nueva contraseña">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary btn-full">Actualizar Contraseña e Ingresar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modales de Órdenes existentes -->
     <div id="modal-nueva-orden" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -413,9 +498,6 @@ $userRol = $_SESSION['user_rol'] ?? 'Administrador';
         </div>
     </div>
 
-    <!-- =========================================================
-         MODAL: CAMBIAR ESTADO DE ÓRDEN
-         ========================================================= -->
     <div id="modal-cambiar-estado" class="modal">
         <div class="modal-content">
             <div class="modal-header">

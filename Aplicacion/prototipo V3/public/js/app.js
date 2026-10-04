@@ -1,6 +1,7 @@
 /* =========================================================
    TECNOFIX - APP.JS V3
-   Lógica del cliente, interacción AJAX y dinamismo
+   Lógica del cliente, interacción AJAX, Creación de Usuarios (Admin)
+   y Cambio de Contraseña Obligatorio (rol+123)
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -22,10 +23,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // Tablas y Filtros
     const ordersTableBody = document.getElementById("orders-table-body");
     const dashboardOrdersBody = document.getElementById("dashboard-orders-body");
+    const usersTableBody = document.getElementById("users-table-body");
     const searchOrdersInput = document.getElementById("search-orders");
     const filterStatusSelect = document.getElementById("filter-status");
 
-    // Modales
+    // Modales Órdenes
     const modalNuevaOrden = document.getElementById("modal-nueva-orden");
     const btnNuevaOrden = document.getElementById("btn-nueva-orden");
     const btnNuevaOrdenDash = document.getElementById("btn-nueva-orden-dash");
@@ -37,6 +39,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const closeModalEstado = document.getElementById("close-modal-estado");
     const btnCancelarEstado = document.getElementById("btn-cancelar-estado");
     const formCambiarEstado = document.getElementById("form-cambiar-estado");
+
+    // Modales Usuarios y Cambio de Password
+    const modalCrearUsuario = document.getElementById("modal-crear-usuario");
+    const btnCrearUsuario = document.getElementById("btn-crear-usuario");
+    const closeModalUsuario = document.getElementById("close-modal-usuario");
+    const btnCancelarUsuario = document.getElementById("btn-cancelar-crear-usuario");
+    const formCrearUsuario = document.getElementById("form-crear-usuario");
+
+    const modalCambiarPassOblig = document.getElementById("modal-cambiar-password-obligatorio");
+    const formCambiarPassOblig = document.getElementById("form-cambiar-password-obligatorio");
+    const passChangeAlert = document.getElementById("pass-change-alert");
 
     // Estado Local de Órdenes (con fallback mock)
     let localOrders = [
@@ -75,6 +88,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     ];
 
+    let localUsers = [
+        { id_usuario: 1, nombre: 'Administrador TecnoFix', email: 'admin@tecnofix.com', rol: 'Administrador', debe_cambiar_pass: 0 },
+        { id_usuario: 2, nombre: 'Carlos Ruiz', email: 'carlos.tecnico@tecnofix.com', rol: 'Tecnico', debe_cambiar_pass: 0 },
+        { id_usuario: 3, nombre: 'María López', email: 'maria.recepcion@tecnofix.com', rol: 'Recepcion', debe_cambiar_pass: 0 },
+        { id_usuario: 4, nombre: 'Pedro Ramírez', email: 'pedro.nuevo@tecnofix.com', rol: 'Tecnico', debe_cambiar_pass: 1 }
+    ];
+
     /* =========================================================
        1. AUTENTICACIÓN (LOGIN & LOGOUT) - RF-01
        ========================================================= */
@@ -84,14 +104,13 @@ document.addEventListener("DOMContentLoaded", function () {
             const username = document.getElementById("username").value.trim();
             const password = document.getElementById("password").value;
 
-            loginAlert.style.display = "none";
+            if (loginAlert) loginAlert.style.display = "none";
 
             if (!username || !password) {
                 showLoginAlert("Por favor ingrese su usuario y contraseña.");
                 return;
             }
 
-            // Intento de envío a backend PHP mediante Fetch API
             const formData = new FormData();
             formData.append("username", username);
             formData.append("password", password);
@@ -103,35 +122,50 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Login exitoso
                     if (data.user) {
                         document.getElementById("logged-user-name").textContent = data.user.nombre;
                         document.getElementById("logged-user-rol").textContent = data.user.rol;
                     }
                     loginScreen.classList.remove("active");
                     appScreen.classList.add("active");
+
+                    // Verificar si debe cambiar contraseña obligatoriamente
+                    if (data.debe_cambiar_pass === 1 || (data.user && data.user.debe_cambiar_pass === 1)) {
+                        openCambiarPassModal();
+                    }
+
                     loadOrders();
+                    loadUsers();
                 } else {
                     showLoginAlert(data.message || "Credenciales inválidas. Compruebe usuario/contraseña.");
                 }
             })
             .catch(err => {
-                // Fallback simulación cliente si no hay PHP servido por HTTP directo
-                console.log("Servidor PHP API no detectado HTTP directo, ejecutando validación cliente demo:", err);
+                // Fallback simulación cliente
+                const passEsperada = (username.includes("tecnico") ? "tecnico123" : (username.includes("recepcion") ? "recepcion123" : "1234"));
                 if ((username === "admin" || username === "admin@tecnofix.com") && (password === "1234" || password === "admin123")) {
                     loginScreen.classList.remove("active");
                     appScreen.classList.add("active");
                     loadOrders();
+                    loadUsers();
+                } else if (username === "pedro.nuevo@tecnofix.com" && password === "tecnico123") {
+                    loginScreen.classList.remove("active");
+                    appScreen.classList.add("active");
+                    openCambiarPassModal();
+                    loadOrders();
+                    loadUsers();
                 } else {
-                    showLoginAlert("Credenciales inválidas. Para la demo use: admin@tecnofix.com / 1234");
+                    showLoginAlert("Credenciales inválidas. Para la demo use: admin@tecnofix.com / 1234 o pedro.nuevo@tecnofix.com / tecnico123");
                 }
             });
         });
     }
 
     function showLoginAlert(msg) {
-        loginAlert.textContent = msg;
-        loginAlert.style.display = "block";
+        if (loginAlert) {
+            loginAlert.textContent = msg;
+            loginAlert.style.display = "block";
+        }
     }
 
     if (logoutBtn) {
@@ -150,7 +184,157 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     /* =========================================================
-       2. NAVEGACIÓN Y MENÚ RESPONSIVO
+       2. CREACIÓN DE USUARIOS POR ADMINISTRADOR Y CAMBIO DE CLAVE
+       ========================================================= */
+    function openCambiarPassModal() {
+        if (modalCambiarPassOblig) modalCambiarPassOblig.classList.add("active");
+    }
+
+    function closeCambiarPassModal() {
+        if (modalCambiarPassOblig) modalCambiarPassOblig.classList.remove("active");
+    }
+
+    if (formCambiarPassOblig) {
+        formCambiarPassOblig.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const nPass = document.getElementById("nueva_password").value;
+            const cPass = document.getElementById("confirmar_password").value;
+
+            if (passChangeAlert) passChangeAlert.style.display = "none";
+
+            if (nPass.length < 6) {
+                showPassChangeAlert("La nueva contraseña debe tener al menos 6 caracteres.");
+                return;
+            }
+
+            if (nPass !== cPass) {
+                showPassChangeAlert("Las contraseñas ingresadas no coinciden.");
+                return;
+            }
+
+            const formData = new FormData(formCambiarPassOblig);
+            formData.append("action", "cambiar_password");
+
+            fetch("api/usuarios.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("¡Contraseña actualizada exitosamente! Bienvenido al sistema.");
+                    closeCambiarPassModal();
+                    formCambiarPassOblig.reset();
+                } else {
+                    showPassChangeAlert(data.message || "Error al actualizar contraseña.");
+                }
+            })
+            .catch(() => {
+                alert("¡Contraseña actualizada con éxito! (Simulación cliente)");
+                closeCambiarPassModal();
+                formCambiarPassOblig.reset();
+            });
+        });
+    }
+
+    function showPassChangeAlert(msg) {
+        if (passChangeAlert) {
+            passChangeAlert.textContent = msg;
+            passChangeAlert.style.display = "block";
+        }
+    }
+
+    // Modal Crear Usuario (Admin)
+    function openModalUsuario() { if (modalCrearUsuario) modalCrearUsuario.classList.add("active"); }
+    function closeModalUsuarioFunc() { if (modalCrearUsuario) modalCrearUsuario.classList.remove("active"); }
+
+    if (btnCrearUsuario) btnCrearUsuario.addEventListener("click", openModalUsuario);
+    if (closeModalUsuario) closeModalUsuario.addEventListener("click", closeModalUsuarioFunc);
+    if (btnCancelarUsuario) btnCancelarUsuario.addEventListener("click", closeModalUsuarioFunc);
+
+    if (formCrearUsuario) {
+        formCrearUsuario.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const formData = new FormData(formCrearUsuario);
+            formData.append("action", "crear");
+
+            fetch("api/usuarios.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("¡Usuario registrado exitosamente!\n" + data.message + "\n\n💡 La contraseña temporal asignada es: " + data.default_password);
+                    closeModalUsuarioFunc();
+                    formCrearUsuario.reset();
+                    loadUsers();
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(err => {
+                const nombre = formData.get("nombre");
+                const email = formData.get("email");
+                const rol = formData.get("rol");
+                const defPass = rol.toLowerCase() + "123";
+
+                localUsers.unshift({
+                    id_usuario: localUsers.length + 1,
+                    nombre: nombre,
+                    email: email,
+                    rol: rol,
+                    debe_cambiar_pass: 1
+                });
+
+                alert("¡Usuario registrado exitosamente!\n\nUsuario: " + email + "\nRol: " + rol + "\nContraseña por defecto asignada: " + defPass + "\n\n(El usuario deberá cambiar la clave al iniciar sesión por primera vez)");
+                closeModalUsuarioFunc();
+                formCrearUsuario.reset();
+                loadUsers();
+            });
+        });
+    }
+
+    function loadUsers() {
+        fetch("api/usuarios.php")
+        .then(res => res.json())
+        .then(resData => {
+            if (resData.success && Array.isArray(resData.data)) {
+                renderUsersTable(resData.data);
+            } else {
+                renderUsersTable(localUsers);
+            }
+        })
+        .catch(() => {
+            renderUsersTable(localUsers);
+        });
+    }
+
+    function renderUsersTable(users) {
+        if (!usersTableBody) return;
+        usersTableBody.innerHTML = "";
+
+        users.forEach(u => {
+            const tr = document.createElement("tr");
+            const passDefecto = u.rol.toLowerCase() + "123";
+            const estadoPassBadge = u.debe_cambiar_pass == 1 
+                ? `<span class="badge badge-warning">🔒 Primer Inicio (Pendiente Cambio)</span>` 
+                : `<span class="badge badge-success">✓ Clave Personalizada</span>`;
+
+            tr.innerHTML = `
+                <td>USR-00${u.id_usuario}</td>
+                <td><strong>${escapeHtml(u.nombre)}</strong></td>
+                <td>${escapeHtml(u.email)}</td>
+                <td><span class="badge badge-info">${escapeHtml(u.rol)}</span></td>
+                <td><code>${escapeHtml(passDefecto)}</code></td>
+                <td>${estadoPassBadge}</td>
+            `;
+            usersTableBody.appendChild(tr);
+        });
+    }
+
+    /* =========================================================
+       3. NAVEGACIÓN Y MENÚ RESPONSIVO
        ========================================================= */
     navButtons.forEach(btn => {
         btn.addEventListener("click", function () {
@@ -177,19 +361,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     if (menuToggleBtn) {
-        menuToggleBtn.addEventListener("click", () => {
-            sidebar.classList.add("mobile-open");
-        });
+        menuToggleBtn.addEventListener("click", () => sidebar.classList.add("mobile-open"));
     }
 
     if (closeSidebarBtn) {
-        closeSidebarBtn.addEventListener("click", () => {
-            sidebar.classList.remove("mobile-open");
-        });
+        closeSidebarBtn.addEventListener("click", () => sidebar.classList.remove("mobile-open"));
     }
 
     /* =========================================================
-       3. CARGA DE ÓRDENES Y FILTROS (AJAX / MEMORIA)
+       4. CARGA DE ÓRDENES Y FILTROS
        ========================================================= */
     function loadOrders() {
         const estado = filterStatusSelect ? filterStatusSelect.value : 'Todos';
@@ -206,7 +386,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 updateStats(localOrders);
             }
         })
-        .catch(err => {
+        .catch(() => {
             renderOrdersTable(filterLocalOrders(estado, q));
             updateStats(localOrders);
         });
@@ -252,7 +432,6 @@ document.addEventListener("DOMContentLoaded", function () {
             ordersTableBody.appendChild(tr);
         });
 
-        // Dashboard preview table
         if (dashboardOrdersBody) {
             dashboardOrdersBody.innerHTML = "";
             orders.slice(0, 5).forEach(o => {
@@ -296,13 +475,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Filtros dinámicos al escribir o seleccionar
     if (searchOrdersInput) searchOrdersInput.addEventListener("input", loadOrders);
     if (filterStatusSelect) filterStatusSelect.addEventListener("change", loadOrders);
 
-    /* =========================================================
-       4. MODAL CREAR NUEVA ÓRDEN DE SERVICIO
-       ========================================================= */
+    // Modal Crear Orden
     function openModalOrden() { if (modalNuevaOrden) modalNuevaOrden.classList.add("active"); }
     function closeModalOrdenFunc() { if (modalNuevaOrden) modalNuevaOrden.classList.remove("active"); }
 
@@ -332,8 +508,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert("Error: " + (data.message || "No se pudo registrar la orden"));
                 }
             })
-            .catch(err => {
-                // Fallback cliente si no hay backend activo
+            .catch(() => {
                 const newCode = "ORD-2026-00" + (localOrders.length + 1);
                 localOrders.unshift({
                     id_orden: localOrders.length + 1,
@@ -354,9 +529,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    /* =========================================================
-       5. MODAL CAMBIAR ESTADO
-       ========================================================= */
+    // Modal Cambiar Estado
     window.openCambiarEstadoModal = function (idOrden, codigo, estadoActual) {
         document.getElementById("modal-estado-id-orden").value = idOrden;
         document.getElementById("modal-estado-codigo").textContent = codigo;
@@ -411,6 +584,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .replace(/'/g, "&#039;");
     }
 
-    // Inicializar órdenes al cargar
     loadOrders();
+    loadUsers();
 });
