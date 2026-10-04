@@ -12,7 +12,6 @@ Sistema Web integral para la recepción, diagnóstico, asignación técnica y se
 * **Proyecto:** TecnoFix Integrador - Segundo Parcial
 * **Estudiante / Autor:** Claudio Ramírez
 * **Matrícula:** 202110020069
-* **Profesor / Evaluador:** Equipo Docente UCN
 * **Tecnologías:** PHP 8.2 (MVC), MySQL 8.0 / MariaDB (XAMPP), HTML5, CSS3 Responsive, JavaScript (ES6 / Async Fetch API).
 
 ---
