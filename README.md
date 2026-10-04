@@ -72,12 +72,12 @@ TecnoFix/
    * Abrir [http://localhost/phpmyadmin/](http://localhost/phpmyadmin/)
    * Crear o seleccionar la base de datos `tecnofix_db`.
    * Importar el archivo SQL ubicado en:
-     `Aplicacion/sistema/database/tecnofix_db.sql`
+     `Aplicacion/prototipo V3/database/tecnofix_db.sql`
 
 4. **Acceder a la Aplicación en el Navegador:**
    Navegar a la siguiente URL local:
    ```text
-   http://localhost/TecnoFix/Aplicacion/sistema/
+   http://localhost/TecnoFix/Aplicacion/prototipo V3/
    ```
 
 ---

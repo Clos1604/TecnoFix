@@ -304,9 +304,9 @@ FICHA TÉCNICA DE INFRAESTRUCTURA (TARGET-HOST PROPIUESTO)
 ## 13. Enlaces y Anexos Técnicos
 
 * 🔗 **Repositorio Git Oficial:** Disponible en el espacio de trabajo local / GitHub de la entrega (`main`).
-* 📁 **Ubicación del Script SQL:** `Aplicacion/sistema/database/tecnofix_db.sql`
+* 📁 **Ubicación del Script SQL:** `Aplicacion/prototipo V3/database/tecnofix_db.sql`
 * 🌐 **Instrucciones para Ejecución Local:**
   1. Copiar carpeta `TecnoFix` en `C:\xampp\htdocs\`.
   2. Importar `tecnofix_db.sql` en phpMyAdmin.
-  3. Navegar a: `http://localhost/TecnoFix/Aplicacion/sistema/`
+  3. Navegar a: `http://localhost/TecnoFix/Aplicacion/prototipo V3/`
   4. Ingresar con credenciales: `admin@tecnofix.com` / `1234`.
