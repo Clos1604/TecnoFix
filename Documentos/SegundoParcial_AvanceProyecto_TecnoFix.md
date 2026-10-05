@@ -185,7 +185,7 @@ Conforme a la especificación, se ejecutaron y documentaron **3 pruebas exitosas
 ## 8. Repositorio Git y Estrategia de Trabajo Colaborativo
 
 ### 8.1 Ficha del Repositorio
-* **Plataforma:** GitHub / Git Local.
+* **Plataforma:** GitHub — [https://github.com/Clos1604/TecnoFix](https://github.com/Clos1604/TecnoFix)
 * **Rama Principal:** `main` (código estable y validado).
 * **Ramas de Trabajo:** `feature/usabilidad-v2`, `feature/implementacion-php-mysql`.
 
@@ -303,7 +303,7 @@ FICHA TÉCNICA DE INFRAESTRUCTURA (TARGET-HOST PROPIUESTO)
 
 ## 13. Enlaces y Anexos Técnicos
 
-* 🔗 **Repositorio Git Oficial:** Disponible en el espacio de trabajo local / GitHub de la entrega (`main`).
+* 🔗 **Repositorio Git Oficial:** [https://github.com/Clos1604/TecnoFix](https://github.com/Clos1604/TecnoFix)
 * 📁 **Ubicación del Script SQL:** `Aplicacion/prototipo V3/database/tecnofix_db.sql`
 * 🌐 **Instrucciones para Ejecución Local:**
   1. Copiar carpeta `TecnoFix` en `C:\xampp\htdocs\`.
