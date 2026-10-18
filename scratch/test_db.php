@@ -1,6 +1,8 @@
 <?php
+require_once __DIR__ . '/../Aplicacion/prototipo V3/config/conexion.php';
+
 try {
-    $pdo = new PDO("mysql:host=localhost;port=3306", "root", "Claudio16*");
+    $pdo = new PDO("mysql:host=" . DB_HOST . ";port=" . DB_PORT, DB_USER, DB_PASS);
     echo "CONEXION_MYSQL_EXITOSA\n";
     
     // Check if tecnofix_db exists or create it

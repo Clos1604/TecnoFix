@@ -1,0 +1,125 @@
+name: Quality checks
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: tecnofix_db
+      DB_USER: root
+      DB_PASS: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo_mysql
+      - name: Check PHP syntax
+        run: find . -name '*.php' -not -path './.git/*' -print0 | xargs -0 -n1 php -l
+      - name: Check JavaScript syntax
+        run: |
+          node --check "Aplicacion/prototipo V2/js/app.js"
+          node --check "Aplicacion/prototipo V3/public/js/app.js"
+      - name: Create schema
+        run: mysql --host=127.0.0.1 --user=root < "Aplicacion/prototipo V3/database/tecnofix_db.sql"
+      - name: Generate temporary test credentials
+        run: |
+          echo "ALLOW_DEMO_USER_INIT=1" >> "$GITHUB_ENV"
+          echo "DEMO_ADMIN_PASSWORD=$(openssl rand -hex 16)" >> "$GITHUB_ENV"
+          echo "DEMO_SENIOR_TECH_PASSWORD=$(openssl rand -hex 16)" >> "$GITHUB_ENV"
+          echo "DEMO_RECEPTION_PASSWORD=$(openssl rand -hex 16)" >> "$GITHUB_ENV"
+          echo "DEMO_NEW_TECH_PASSWORD=$(openssl rand -hex 16)" >> "$GITHUB_ENV"
+      - name: Initialize demo users and relational data
+        run: |
+          php "Aplicacion/prototipo V3/scripts/init_demo_users.php"
+          php "Aplicacion/prototipo V3/scripts/init_demo_users.php"
+          mysql --host=127.0.0.1 --user=root < "Aplicacion/prototipo V3/database/tecnofix_demo_data.sql"
+          mysql --host=127.0.0.1 --user=root < "Aplicacion/prototipo V3/database/tecnofix_demo_data.sql"
+      - name: Verify authentication and foreign keys
+        run: php tests/authentication_test.php
+
+  sonarcloud:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check SonarCloud configuration
+        id: sonar-config
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+          SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
+        run: |
+          if [ -n "$SONAR_TOKEN" ] && [ -n "$SONAR_ORGANIZATION" ] && [ -n "$SONAR_PROJECT_KEY" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "SonarCloud skipped: configure SONAR_TOKEN and the SONAR_ORGANIZATION / SONAR_PROJECT_KEY repository variables."
+          fi
+      - uses: SonarSource/sonarqube-scan-action@v6
+        if: steps.sonar-config.outputs.enabled == 'true'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+        with:
+          args: >-
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+
+  snyk:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Snyk configuration
+        id: snyk-config
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          if [ -n "$SNYK_TOKEN" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Snyk skipped: configure the SNYK_TOKEN repository secret."
+          fi
+      - name: Snyk Code analysis
+        if: steps.snyk-config.outputs.enabled == 'true'
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_ORG: ${{ vars.SNYK_ORG }}
+        run: npx --yes snyk code test --sarif-file-output=snyk-code.sarif
+      - name: Snyk dependency analysis
+        if: steps.snyk-config.outputs.enabled == 'true' && hashFiles('**/composer.lock', '**/package-lock.json', '**/yarn.lock', '**/pnpm-lock.yaml') != ''
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_ORG: ${{ vars.SNYK_ORG }}
+        run: npx --yes snyk test --all-projects
+      - name: Upload Snyk report
+        if: always() && hashFiles('snyk-code.sarif') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-code-report
+          path: snyk-code.sarif

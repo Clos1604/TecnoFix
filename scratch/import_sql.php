@@ -1,6 +1,14 @@
 <?php
 try {
-    $pdo = new PDO("mysql:host=localhost;dbname=tecnofix_db;charset=utf8mb4", "root", "Claudio16*", [
+    $host = getenv('DB_HOST') ?: 'localhost';
+    $port = getenv('DB_PORT') ?: '3306';
+    $name = getenv('DB_NAME') ?: 'tecnofix_db';
+    $user = getenv('DB_USER');
+    if ($user === false || $user === '') {
+        throw new RuntimeException('Configure DB_USER in the environment.');
+    }
+    $password = getenv('DB_PASS') ?: '';
+    $pdo = new PDO("mysql:host=$host;port=$port;dbname=$name;charset=utf8mb4", $user, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
     
@@ -14,6 +22,6 @@ try {
     $tables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
     echo "TABLAS_CREADAS: " . implode(", ", $tables) . "\n";
 
-} catch (PDOException $e) {
+} catch (Throwable $e) {
     echo "ERROR_IMPORTACION: " . $e->getMessage() . "\n";
 }

@@ -6,7 +6,12 @@ require_once __DIR__ . '/../Aplicacion/prototipo V3/models/Orden.php';
 echo "=== PROBANDO CONEXION Y MODELOS EN MYSQL ===\n";
 
 // Test Usuario Login
-$user = Usuario::login('admin@tecnofix.com', '1234');
+$adminPassword = getenv('DEMO_ADMIN_PASSWORD');
+if ($adminPassword === false || $adminPassword === '') {
+    fwrite(STDERR, "Configure DEMO_ADMIN_PASSWORD in the environment.\n");
+    exit(1);
+}
+$user = Usuario::login('admin@tecnofix.com', $adminPassword);
 if ($user) {
     echo "LOGIN_EXITOSO: Bienvenido " . $user['nombre'] . " (" . $user['rol'] . ")\n";
 } else {

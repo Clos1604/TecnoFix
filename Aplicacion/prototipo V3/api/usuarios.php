@@ -9,6 +9,16 @@ if ($action === 'crear') {
 } elseif ($action === 'cambiar_password') {
     echo json_encode(AuthController::cambiarPasswordInicial());
 } else {
+    if (!AuthController::isAuthenticated() || AuthController::isPasswordChangePending()) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Debe iniciar sesión.']);
+        exit;
+    }
+    if (($_SESSION['user_rol'] ?? '') !== 'Administrador') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'No tiene permisos para consultar usuarios.']);
+        exit;
+    }
     $usuarios = AuthController::listarUsuarios();
     echo json_encode(['success' => true, 'data' => $usuarios]);
 }

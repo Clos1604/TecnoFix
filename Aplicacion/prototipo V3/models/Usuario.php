@@ -13,27 +13,7 @@ class Usuario {
      */
     public static function login($email, $password) {
         $db = getDBConnection();
-
         if ($db === null) {
-            // Demostración simulada
-            if (($email === 'admin@tecnofix.com' || $email === 'admin') && $password === '1234') {
-                return [
-                    'id_usuario' => 1,
-                    'nombre' => 'Administrador TecnoFix',
-                    'email' => 'admin@tecnofix.com',
-                    'rol' => 'Administrador',
-                    'debe_cambiar_pass' => 0
-                ];
-            }
-            if ($email === 'pedro.nuevo@tecnofix.com' && $password === 'tecnico123') {
-                return [
-                    'id_usuario' => 4,
-                    'nombre' => 'Pedro Ramírez',
-                    'email' => 'pedro.nuevo@tecnofix.com',
-                    'rol' => 'Tecnico',
-                    'debe_cambiar_pass' => 1
-                ];
-            }
             return false;
         }
 
@@ -47,37 +27,25 @@ class Usuario {
             return $user;
         }
 
-        // Retrocompatibilidad exclusiva para usuario demo 'admin' / '1234'
-        if ($user && $user['id_usuario'] == 1 && $password === '1234') {
-            unset($user['password_hash']);
-            $user['debe_cambiar_pass'] = intval($user['debe_cambiar_pass'] ?? 0);
-            return $user;
-        }
-
         return false;
     }
 
     /**
      * Crear un nuevo usuario por parte del Administrador
-     * Asigna contraseña por defecto: rol + "123" (Ej: tecnico123)
-     * Marca debe_cambiar_pass = 1
+    * Asigna una contraseña temporal aleatoria y exige cambiarla.
      */
     public static function crearUsuario($nombre, $email, $rol) {
         $db = getDBConnection();
 
-        $rolClean = strtolower(trim($rol));
-        if ($rolClean === 'técnico') $rolClean = 'tecnico';
-        if ($rolClean === 'recepción') $rolClean = 'recepcion';
+        if (!in_array($rol, ['Administrador', 'Tecnico', 'Recepcion'], true)) {
+            return ['exito' => false, 'error' => 'El rol seleccionado no es válido.'];
+        }
 
-        $defaultPassword = $rolClean . '123';
+        $defaultPassword = bin2hex(random_bytes(12));
         $passwordHash = password_hash($defaultPassword, PASSWORD_BCRYPT);
 
         if ($db === null) {
-            return [
-                'exito' => true,
-                'default_password' => $defaultPassword,
-                'mensaje' => "Usuario $nombre creado exitosamente. Contraseña temporal: $defaultPassword"
-            ];
+            return ['exito' => false, 'error' => 'No hay conexión disponible con la base de datos.'];
         }
 
         try {
@@ -100,10 +68,10 @@ class Usuario {
                 'exito' => true,
                 'id_usuario' => $db->lastInsertId(),
                 'default_password' => $defaultPassword,
-                'mensaje' => "Usuario registrado con éxito. Contraseña por defecto asignada: '$defaultPassword'"
+                'mensaje' => 'Usuario registrado con una contraseña temporal. Deberá cambiarla al iniciar sesión.'
             ];
-        } catch (Exception $e) {
-            return ['exito' => false, 'error' => $e->getMessage()];
+        } catch (Throwable $exception) {
+            return ['exito' => false, 'error' => 'No se pudo crear el usuario. Verifique los datos e inténtelo de nuevo.'];
         }
     }
 
@@ -115,7 +83,7 @@ class Usuario {
         $passwordHash = password_hash($nuevaPassword, PASSWORD_BCRYPT);
 
         if ($db === null) {
-            return ['exito' => true, 'mensaje' => 'Contraseña actualizada correctamente (Simulación).'];
+            return ['exito' => false, 'error' => 'No hay conexión disponible con la base de datos.'];
         }
 
         try {
@@ -125,20 +93,15 @@ class Usuario {
                 ':id' => $idUsuario
             ]);
             return ['exito' => true, 'mensaje' => 'Tu contraseña ha sido actualizada con éxito.'];
-        } catch (Exception $e) {
-            return ['exito' => false, 'error' => $e->getMessage()];
+        } catch (Throwable $exception) {
+            return ['exito' => false, 'error' => 'No se pudo actualizar la contraseña.'];
         }
     }
 
     public static function getAll() {
         $db = getDBConnection();
         if ($db === null) {
-            return [
-                ['id_usuario' => 1, 'nombre' => 'Administrador TecnoFix', 'email' => 'admin@tecnofix.com', 'rol' => 'Administrador', 'estado' => 'Activo', 'debe_cambiar_pass' => 0],
-                ['id_usuario' => 2, 'nombre' => 'Carlos Ruiz', 'email' => 'carlos.tecnico@tecnofix.com', 'rol' => 'Tecnico', 'estado' => 'Activo', 'debe_cambiar_pass' => 0],
-                ['id_usuario' => 3, 'nombre' => 'María López', 'email' => 'maria.recepcion@tecnofix.com', 'rol' => 'Recepcion', 'estado' => 'Activo', 'debe_cambiar_pass' => 0],
-                ['id_usuario' => 4, 'nombre' => 'Pedro Ramírez', 'email' => 'pedro.nuevo@tecnofix.com', 'rol' => 'Tecnico', 'estado' => 'Activo', 'debe_cambiar_pass' => 1]
-            ];
+            return [];
         }
 
         $stmt = $db->query("SELECT id_usuario, nombre, email, rol, estado, debe_cambiar_pass, fecha_creacion FROM usuarios ORDER BY id_usuario DESC");
@@ -148,9 +111,7 @@ class Usuario {
     public static function getTecnicos() {
         $db = getDBConnection();
         if ($db === null) {
-            return [
-                ['id_usuario' => 2, 'nombre' => 'Carlos Ruiz (Técnico Senior)', 'rol' => 'Tecnico']
-            ];
+            return [];
         }
 
         $stmt = $db->query("SELECT id_usuario, nombre, email, rol FROM usuarios WHERE rol IN ('Tecnico', 'Administrador') AND estado = 'Activo'");

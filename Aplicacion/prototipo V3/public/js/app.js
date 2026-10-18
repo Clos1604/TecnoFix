@@ -1,10 +1,16 @@
 /* =========================================================
    TECNOFIX - APP.JS V3
    Lógica del cliente, interacción AJAX, Creación de Usuarios (Admin)
-   y Cambio de Contraseña Obligatorio (rol+123)
+    y Cambio de Contraseña Obligatorio
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", function () {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+    const apiFetch = (url, options = {}) => {
+        const headers = new Headers(options.headers || {});
+        headers.set("X-CSRF-Token", csrfToken);
+        return fetch(url, { ...options, headers });
+    };
 
     // Referencias DOM principales
     const loginScreen = document.getElementById("login-screen");
@@ -51,50 +57,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const formCambiarPassOblig = document.getElementById("form-cambiar-password-obligatorio");
     const passChangeAlert = document.getElementById("pass-change-alert");
 
-    // Estado Local de Órdenes (con fallback mock)
-    let localOrders = [
-        {
-            id_orden: 1,
-            codigo_orden: 'ORD-2026-001',
-            cliente_nombre: 'Juan Pérez',
-            telefono: '809-555-0101',
-            equipo_info: 'Laptop Dell XPS 15',
-            diagnostico_inicial: 'El equipo no enciende tras descarga eléctrica.',
-            estado: 'En Proceso',
-            costo_estimado: 4500.00,
-            tecnico_nombre: 'Carlos Ruiz'
-        },
-        {
-            id_orden: 2,
-            codigo_orden: 'ORD-2026-002',
-            cliente_nombre: 'Ana Gómez',
-            telefono: '809-555-0202',
-            equipo_info: 'Smartphone Apple iPhone 13',
-            diagnostico_inicial: 'Pantalla fisurada y falla en digitalizador.',
-            estado: 'Pendiente',
-            costo_estimado: 6800.00,
-            tecnico_nombre: 'Carlos Ruiz'
-        },
-        {
-            id_orden: 3,
-            codigo_orden: 'ORD-2026-003',
-            cliente_nombre: 'Empresa Inversiones SRL',
-            telefono: '809-555-0303',
-            equipo_info: 'Desktop PC Custom Core i7',
-            diagnostico_inicial: 'Mantenimiento preventivo y formateo.',
-            estado: 'Completado',
-            costo_estimado: 2500.00,
-            tecnico_nombre: 'Sin asignar'
-        }
-    ];
-
-    let localUsers = [
-        { id_usuario: 1, nombre: 'Administrador TecnoFix', email: 'admin@tecnofix.com', rol: 'Administrador', debe_cambiar_pass: 0 },
-        { id_usuario: 2, nombre: 'Carlos Ruiz', email: 'carlos.tecnico@tecnofix.com', rol: 'Tecnico', debe_cambiar_pass: 0 },
-        { id_usuario: 3, nombre: 'María López', email: 'maria.recepcion@tecnofix.com', rol: 'Recepcion', debe_cambiar_pass: 0 },
-        { id_usuario: 4, nombre: 'Pedro Ramírez', email: 'pedro.nuevo@tecnofix.com', rol: 'Tecnico', debe_cambiar_pass: 1 }
-    ];
-
     /* =========================================================
        1. AUTENTICACIÓN (LOGIN & LOGOUT) - RF-01
        ========================================================= */
@@ -115,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
             formData.append("username", username);
             formData.append("password", password);
 
-            fetch("api/login.php", {
+            apiFetch("api/login.php", {
                 method: "POST",
                 body: formData
             })
@@ -140,24 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     showLoginAlert(data.message || "Credenciales inválidas. Compruebe usuario/contraseña.");
                 }
             })
-            .catch(err => {
-                // Fallback simulación cliente
-                const passEsperada = (username.includes("tecnico") ? "tecnico123" : (username.includes("recepcion") ? "recepcion123" : "1234"));
-                if ((username === "admin" || username === "admin@tecnofix.com") && (password === "1234" || password === "admin123")) {
-                    loginScreen.classList.remove("active");
-                    appScreen.classList.add("active");
-                    loadOrders();
-                    loadUsers();
-                } else if (username === "pedro.nuevo@tecnofix.com" && password === "tecnico123") {
-                    loginScreen.classList.remove("active");
-                    appScreen.classList.add("active");
-                    openCambiarPassModal();
-                    loadOrders();
-                    loadUsers();
-                } else {
-                    showLoginAlert("Credenciales inválidas. Para la demo use: admin@tecnofix.com / 1234 o pedro.nuevo@tecnofix.com / tecnico123");
-                }
-            });
+            .catch(() => showLoginAlert("No fue posible conectar con el servidor. Inténtelo de nuevo."));
         });
     }
 
@@ -170,15 +115,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (logoutBtn) {
         logoutBtn.addEventListener("click", function () {
-            fetch("api/logout.php")
-            .then(() => {
-                appScreen.classList.remove("active");
-                loginScreen.classList.add("active");
-                if (loginForm) loginForm.reset();
+            apiFetch("api/logout.php", { method: "POST" })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    alert(data.message || "No se pudo cerrar la sesión.");
+                    return;
+                }
+                window.location.reload();
             })
             .catch(() => {
-                appScreen.classList.remove("active");
-                loginScreen.classList.add("active");
+                alert("No fue posible conectar con el servidor para cerrar la sesión.");
             });
         });
     }
@@ -202,8 +149,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (passChangeAlert) passChangeAlert.style.display = "none";
 
-            if (nPass.length < 6) {
-                showPassChangeAlert("La nueva contraseña debe tener al menos 6 caracteres.");
+            if (nPass.length < 12) {
+                showPassChangeAlert("La nueva contraseña debe tener al menos 12 caracteres.");
                 return;
             }
 
@@ -215,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData(formCambiarPassOblig);
             formData.append("action", "cambiar_password");
 
-            fetch("api/usuarios.php", {
+            apiFetch("api/usuarios.php", {
                 method: "POST",
                 body: formData
             })
@@ -229,11 +176,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     showPassChangeAlert(data.message || "Error al actualizar contraseña.");
                 }
             })
-            .catch(() => {
-                alert("¡Contraseña actualizada con éxito! (Simulación cliente)");
-                closeCambiarPassModal();
-                formCambiarPassOblig.reset();
-            });
+            .catch(() => showPassChangeAlert("No fue posible conectar con el servidor. Inténtelo de nuevo."));
         });
     }
 
@@ -258,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData(formCrearUsuario);
             formData.append("action", "crear");
 
-            fetch("api/usuarios.php", {
+            apiFetch("api/usuarios.php", {
                 method: "POST",
                 body: formData
             })
@@ -273,40 +216,22 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert("Error: " + data.message);
                 }
             })
-            .catch(err => {
-                const nombre = formData.get("nombre");
-                const email = formData.get("email");
-                const rol = formData.get("rol");
-                const defPass = rol.toLowerCase() + "123";
-
-                localUsers.unshift({
-                    id_usuario: localUsers.length + 1,
-                    nombre: nombre,
-                    email: email,
-                    rol: rol,
-                    debe_cambiar_pass: 1
-                });
-
-                alert("¡Usuario registrado exitosamente!\n\nUsuario: " + email + "\nRol: " + rol + "\nContraseña por defecto asignada: " + defPass + "\n\n(El usuario deberá cambiar la clave al iniciar sesión por primera vez)");
-                closeModalUsuarioFunc();
-                formCrearUsuario.reset();
-                loadUsers();
-            });
+            .catch(() => alert("No fue posible conectar con el servidor. El usuario no se guardó."));
         });
     }
 
     function loadUsers() {
-        fetch("api/usuarios.php")
+        apiFetch("api/usuarios.php")
         .then(res => res.json())
         .then(resData => {
             if (resData.success && Array.isArray(resData.data)) {
                 renderUsersTable(resData.data);
             } else {
-                renderUsersTable(localUsers);
+                renderUsersTable([]);
             }
         })
         .catch(() => {
-            renderUsersTable(localUsers);
+            renderUsersTable([]);
         });
     }
 
@@ -316,7 +241,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         users.forEach(u => {
             const tr = document.createElement("tr");
-            const passDefecto = u.rol.toLowerCase() + "123";
             const estadoPassBadge = u.debe_cambiar_pass == 1 
                 ? `<span class="badge badge-warning">🔒 Primer Inicio (Pendiente Cambio)</span>` 
                 : `<span class="badge badge-success">✓ Clave Personalizada</span>`;
@@ -326,7 +250,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td><strong>${escapeHtml(u.nombre)}</strong></td>
                 <td>${escapeHtml(u.email)}</td>
                 <td><span class="badge badge-info">${escapeHtml(u.rol)}</span></td>
-                <td><code>${escapeHtml(passDefecto)}</code></td>
                 <td>${estadoPassBadge}</td>
             `;
             usersTableBody.appendChild(tr);
@@ -375,32 +298,20 @@ document.addEventListener("DOMContentLoaded", function () {
         const estado = filterStatusSelect ? filterStatusSelect.value : 'Todos';
         const q = searchOrdersInput ? searchOrdersInput.value.trim().toLowerCase() : '';
 
-        fetch(`api/ordenes.php?estado=${encodeURIComponent(estado)}&q=${encodeURIComponent(q)}`)
+        apiFetch(`api/ordenes.php?estado=${encodeURIComponent(estado)}&q=${encodeURIComponent(q)}`)
         .then(res => res.json())
         .then(resData => {
             if (resData.success && Array.isArray(resData.data)) {
                 renderOrdersTable(resData.data);
                 updateStats(resData.data);
             } else {
-                renderOrdersTable(filterLocalOrders(estado, q));
-                updateStats(localOrders);
+                renderOrdersTable([]);
+                updateStats([]);
             }
         })
         .catch(() => {
-            renderOrdersTable(filterLocalOrders(estado, q));
-            updateStats(localOrders);
-        });
-    }
-
-    function filterLocalOrders(estado, q) {
-        return localOrders.filter(o => {
-            const matchEstado = (estado === 'Todos' || o.estado === estado);
-            const matchQ = !q || (
-                o.codigo_orden.toLowerCase().includes(q) ||
-                o.cliente_nombre.toLowerCase().includes(q) ||
-                o.equipo_info.toLowerCase().includes(q)
-            );
-            return matchEstado && matchQ;
+            renderOrdersTable([]);
+            updateStats([]);
         });
     }
 
@@ -424,11 +335,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td>${getBadgeHTML(o.estado)}</td>
                 <td>${escapeHtml(o.tecnico_nombre || 'Sin asignar')}</td>
                 <td>
-                    <button class="btn btn-secondary btn-sm-action" onclick="openCambiarEstadoModal(${o.id_orden}, '${escapeHtml(o.codigo_orden)}', '${escapeHtml(o.estado)}')">
+                    <button class="btn btn-secondary btn-sm-action" data-order-id="${Number(o.id_orden)}" data-order-code="${escapeHtml(o.codigo_orden)}" data-order-state="${escapeHtml(o.estado)}">
                         Cambiar Estado
                     </button>
                 </td>
             `;
+            tr.querySelector("button").addEventListener("click", event => {
+                const button = event.currentTarget;
+                window.openCambiarEstadoModal(button.dataset.orderId, button.dataset.orderCode, button.dataset.orderState);
+            });
             ordersTableBody.appendChild(tr);
         });
 
@@ -442,8 +357,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     <td>${escapeHtml(o.equipo_info)}</td>
                     <td>${getBadgeHTML(o.estado)}</td>
                     <td>DOP $${parseFloat(o.costo_estimado || 0).toFixed(2)}</td>
-                    <td><button class="btn btn-secondary" onclick="openCambiarEstadoModal(${o.id_orden}, '${escapeHtml(o.codigo_orden)}', '${escapeHtml(o.estado)}')">Ver</button></td>
+                    <td><button class="btn btn-secondary" data-order-id="${Number(o.id_orden)}" data-order-code="${escapeHtml(o.codigo_orden)}" data-order-state="${escapeHtml(o.estado)}">Ver</button></td>
                 `;
+                dTr.querySelector("button").addEventListener("click", event => {
+                    const button = event.currentTarget;
+                    window.openCambiarEstadoModal(button.dataset.orderId, button.dataset.orderCode, button.dataset.orderState);
+                });
                 dashboardOrdersBody.appendChild(dTr);
             });
         }
@@ -493,7 +412,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData(formNuevaOrden);
             formData.append("action", "crear");
 
-            fetch("api/ordenes.php", {
+            apiFetch("api/ordenes.php", {
                 method: "POST",
                 body: formData
             })
@@ -508,24 +427,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert("Error: " + (data.message || "No se pudo registrar la orden"));
                 }
             })
-            .catch(() => {
-                const newCode = "ORD-2026-00" + (localOrders.length + 1);
-                localOrders.unshift({
-                    id_orden: localOrders.length + 1,
-                    codigo_orden: newCode,
-                    cliente_nombre: formData.get("cliente_nombre"),
-                    telefono: formData.get("cliente_telefono"),
-                    equipo_info: formData.get("tipo_dispositivo") + " " + formData.get("marca") + " " + formData.get("modelo"),
-                    diagnostico_inicial: formData.get("diagnostico_inicial"),
-                    estado: 'Pendiente',
-                    costo_estimado: parseFloat(formData.get("costo_estimado") || 0),
-                    tecnico_nombre: 'Carlos Ruiz'
-                });
-                alert("¡Orden registrada exitosamente! (Transacción simulada en memoria: " + newCode + ")");
-                closeModalOrdenFunc();
-                formNuevaOrden.reset();
-                loadOrders();
-            });
+            .catch(() => alert("No fue posible conectar con el servidor. La orden no se guardó."));
         });
     }
 
@@ -548,7 +450,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData(formCambiarEstado);
             formData.append("action", "cambiar_estado");
 
-            fetch("api/ordenes.php", {
+            apiFetch("api/ordenes.php", {
                 method: "POST",
                 body: formData
             })
@@ -562,15 +464,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert("Error: " + data.message);
                 }
             })
-            .catch(() => {
-                const idO = parseInt(document.getElementById("modal-estado-id-orden").value);
-                const nEst = document.getElementById("nuevo_estado").value;
-                const match = localOrders.find(o => o.id_orden === idO);
-                if (match) match.estado = nEst;
-                alert("Estado actualizado correctamente a " + nEst + " (Modo Simulación)");
-                closeModalEstadoFunc();
-                loadOrders();
-            });
+            .catch(() => alert("No fue posible conectar con el servidor. El estado no se actualizó."));
         });
     }
 

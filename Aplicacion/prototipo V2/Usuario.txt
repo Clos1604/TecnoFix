@@ -1,2 +1,1 @@
-admin
-1234
+Prototipo V2 estático: no contiene credenciales ni autenticación segura.

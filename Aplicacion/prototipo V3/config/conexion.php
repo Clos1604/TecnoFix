@@ -4,11 +4,11 @@
  * Implementación con PDO para MySQL (XAMPP / MariaDB)
  */
 
-define('DB_HOST', 'localhost');
-define('DB_PORT', '3306');
-define('DB_NAME', 'tecnofix_db');
-define('DB_USER', 'root');
-define('DB_PASS', 'Claudio16*');
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_PORT', getenv('DB_PORT') ?: '3306');
+define('DB_NAME', getenv('DB_NAME') ?: 'tecnofix_db');
+define('DB_USER', getenv('DB_USER') ?: '');
+define('DB_PASS', getenv('DB_PASS') ?: '');
 
 class Database {
     private static $instance = null;

@@ -14,45 +14,7 @@ class Orden {
     public static function getAll($filtroEstado = null, $busqueda = null) {
         $db = getDBConnection();
         if ($db === null) {
-            // Datos de respaldo dinámicos si MySQL no está iniciado
-            return [
-                [
-                    'id_orden' => 1,
-                    'codigo_orden' => 'ORD-2026-001',
-                    'cliente_nombre' => 'Juan Pérez',
-                    'telefono' => '809-555-0101',
-                    'equipo_info' => 'Laptop Dell XPS 15',
-                    'diagnostico_inicial' => 'El equipo no enciende tras descarga eléctrica.',
-                    'estado' => 'En Proceso',
-                    'costo_estimado' => 4500.00,
-                    'tecnico_nombre' => 'Carlos Ruiz',
-                    'fecha_ingreso' => '2026-10-01 10:30:00'
-                ],
-                [
-                    'id_orden' => 2,
-                    'codigo_orden' => 'ORD-2026-002',
-                    'cliente_nombre' => 'Ana Gómez',
-                    'telefono' => '809-555-0202',
-                    'equipo_info' => 'Smartphone Apple iPhone 13',
-                    'diagnostico_inicial' => 'Pantalla fisurada y falla en digitalizador.',
-                    'estado' => 'Pendiente',
-                    'costo_estimado' => 6800.00,
-                    'tecnico_nombre' => 'Carlos Ruiz',
-                    'fecha_ingreso' => '2026-10-02 14:15:00'
-                ],
-                [
-                    'id_orden' => 3,
-                    'codigo_orden' => 'ORD-2026-003',
-                    'cliente_nombre' => 'Empresa Inversiones SRL',
-                    'telefono' => '809-555-0303',
-                    'equipo_info' => 'Desktop PC Custom Core i7',
-                    'diagnostico_inicial' => 'Mantenimiento preventivo y formateo.',
-                    'estado' => 'Completado',
-                    'costo_estimado' => 2500.00,
-                    'tecnico_nombre' => 'Sin asignar',
-                    'fecha_ingreso' => '2026-09-28 09:00:00'
-                ]
-            ];
+            return [];
         }
 
         $sql = "SELECT o.*, 
@@ -90,11 +52,7 @@ class Orden {
     public static function crearConTransaccion($data, $idUsuarioCreador) {
         $db = getDBConnection();
         if ($db === null) {
-            return [
-                'exito' => true,
-                'codigo_orden' => 'ORD-2026-' . rand(100, 999),
-                'mensaje' => 'Orden de servicio creada exitosamente (Modo Simulación)'
-            ];
+            return ['exito' => false, 'error' => 'No hay conexión disponible con la base de datos.'];
         }
 
         try {
@@ -161,14 +119,14 @@ class Orden {
                 'mensaje' => 'Orden de servicio creada y registrada en base de datos mediante transacción limpia.'
             ];
 
-        } catch (Exception $e) {
+        } catch (Throwable $exception) {
             // REVERTIR CAMBIOS SI HAY ERROR
             if ($db->inTransaction()) {
                 $db->rollBack();
             }
             return [
                 'exito' => false,
-                'error' => 'Error de Transacción: ' . $e->getMessage()
+                'error' => 'No se pudo registrar la orden. Verifique los datos e inténtelo de nuevo.'
             ];
         }
     }
@@ -179,7 +137,7 @@ class Orden {
     public static function cambiarEstado($idOrden, $nuevoEstado, $observaciones, $idUsuario) {
         $db = getDBConnection();
         if ($db === null) {
-            return ['exito' => true, 'mensaje' => 'Estado actualizado (Modo Simulación)'];
+            return ['exito' => false, 'error' => 'No hay conexión disponible con la base de datos.'];
         }
 
         try {
@@ -208,9 +166,9 @@ class Orden {
 
             $db->commit();
             return ['exito' => true, 'mensaje' => 'Estado de orden actualizado exitosamente.'];
-        } catch (Exception $e) {
+        } catch (Throwable $exception) {
             if ($db->inTransaction()) $db->rollBack();
-            return ['exito' => false, 'error' => $e->getMessage()];
+            return ['exito' => false, 'error' => 'No se pudo actualizar la orden. Verifique los datos e inténtelo de nuevo.'];
         }
     }
 }

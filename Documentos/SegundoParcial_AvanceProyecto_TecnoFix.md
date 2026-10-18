@@ -175,7 +175,7 @@ Conforme a la especificación, se ejecutaron y documentaron **3 pruebas exitosas
 
 | ID | Requisito | Acción Realizada | Resultado Esperado | Resultado Obtenido | Estado | Evidencia |
 |---|---|---|---|---|---|---|
-| **PR-01** | **RF-01** | Iniciar sesión con usuario `admin@tecnofix.com` y contraseña `1234`. | Acceso concedido, inicio de sesión PHP y despliegue del Dashboard. | Acceso permitido. Redirección correcta al panel. | **Aprobada** | Captura de acceso concedido y variable de sesión iniciada. |
+| **PR-01** | **RF-01** | Iniciar sesión con usuario `admin@tecnofix.com` y contraseña temporal configurada localmente. | Acceso concedido, inicio de sesión PHP y despliegue del Dashboard. | Acceso permitido. Redirección correcta al panel. | **Aprobada** | Captura de acceso concedido y variable de sesión iniciada. |
 | **PR-02** | **RF-01** | Iniciar sesión con contraseña incorrecta (`admin` / `erronea99`). | Denegar acceso y mostrar mensaje de error en el banner `#login-alert`. | Se muestra alerta roja: *"Credenciales inválidas. Compruebe su usuario o contraseña."* | **Aprobada (Negativa)** | Captura de mensaje de rechazo visual en el formulario de login. |
 | **PR-03** | **RF-02** | Crear nueva orden de servicio completando todos los campos requeridos en el modal. | Inserción exitosa en MySQL mediante transacción y asignación de código `ORD-2026-XXXX`. | Transacción SQL ejecutada. Orden registrada e insertada en la tabla HTML. | **Aprobada** | Registro generado exitosamente en base de datos. |
 | **PR-04** | **RF-02.1** | Escribir "iPhone" en la barra de búsqueda del módulo de órdenes. | Filtrar dinámicamente la tabla mostrando únicamente las órdenes asociadas a iPhone. | La tabla ocultó las órdenes no coincidentes y mostró la orden `ORD-2026-002`. | **Aprobada** | Filtrado en tiempo real sin recarga de página. |
@@ -309,4 +309,4 @@ FICHA TÉCNICA DE INFRAESTRUCTURA (TARGET-HOST PROPIUESTO)
   1. Copiar carpeta `TecnoFix` en `C:\xampp\htdocs\`.
   2. Importar `tecnofix_db.sql` en phpMyAdmin.
   3. Navegar a: `http://localhost/TecnoFix/Aplicacion/prototipo V3/`
-  4. Ingresar con credenciales: `admin@tecnofix.com` / `1234`.
+  4. Ingresar con `admin@tecnofix.com` y la contraseña temporal configurada fuera del repositorio.

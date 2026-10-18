@@ -1,10 +1,10 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/config/session.php';
+startSecureSession();
+$_SESSION['csrf_token'] ??= bin2hex(random_bytes(32));
 $isLogged = !empty($_SESSION['usuario_logged']) && $_SESSION['usuario_logged'] === true;
-$userName = $_SESSION['user_nombre'] ?? 'Administrador TecnoFix';
-$userRol = $_SESSION['user_rol'] ?? 'Administrador';
+$userName = $_SESSION['user_nombre'] ?? 'Invitado';
+$userRol = $_SESSION['user_rol'] ?? '';
 $debeCambiarPass = !empty($_SESSION['debe_cambiar_pass']) && $_SESSION['debe_cambiar_pass'] === 1;
 ?>
 <!DOCTYPE html>
@@ -12,6 +12,7 @@ $debeCambiarPass = !empty($_SESSION['debe_cambiar_pass']) && $_SESSION['debe_cam
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
     <title>TecnoFix | Sistema de Gestión de Servicios Técnicos</title>
     <link rel="stylesheet" href="public/css/style.css">
 </head>
@@ -303,7 +304,7 @@ $debeCambiarPass = !empty($_SESSION['debe_cambiar_pass']) && $_SESSION['debe_cam
                     <div>
                         <span class="section-label">GESTIÓN DE PERSONAL</span>
                         <h2>Usuarios del Sistema</h2>
-                        <p>Administración de usuarios, asignación de roles y clave por defecto (rol+123).</p>
+                        <p>Administración de usuarios, asignación de roles y contraseñas temporales.</p>
                     </div>
                     <button class="btn btn-primary" id="btn-crear-usuario">+ Crear Nuevo Usuario</button>
                 </div>
@@ -320,7 +321,6 @@ $debeCambiarPass = !empty($_SESSION['debe_cambiar_pass']) && $_SESSION['debe_cam
                                     <th>Nombre</th>
                                     <th>Email / Usuario</th>
                                     <th>Rol Asignado</th>
-                                    <th>Clave Inicial por Defecto</th>
                                     <th>Estado Contraseña</th>
                                 </tr>
                             </thead>
@@ -365,7 +365,7 @@ $debeCambiarPass = !empty($_SESSION['debe_cambiar_pass']) && $_SESSION['debe_cam
             <form id="form-crear-usuario">
                 <div class="modal-body">
                     <div class="alert alert-info" style="font-size:13px; margin-bottom:16px;">
-                        💡 <strong>Nota del Sistema:</strong> La contraseña por defecto se generará automáticamente como <strong>rol+123</strong> (ejemplo: <code>tecnico123</code>, <code>recepcion123</code>, <code>administrador123</code>). El usuario deberá cambiarla obligatoriamente al iniciar sesión por primera vez.
+                        💡 <strong>Nota del Sistema:</strong> Se generará una contraseña temporal aleatoria, visible una sola vez. El usuario deberá cambiarla al iniciar sesión por primera vez.
                     </div>
                     <div class="form-group">
                         <label for="nuevo_user_nombre">Nombre Completo *</label>
@@ -411,13 +411,13 @@ $debeCambiarPass = !empty($_SESSION['debe_cambiar_pass']) && $_SESSION['debe_cam
                     <div id="pass-change-alert" class="alert alert-danger" style="display: none;"></div>
 
                     <div class="form-group">
-                        <label for="nueva_password">Nueva Contraseña * (Mínimo 6 caracteres)</label>
-                        <input type="password" id="nueva_password" name="nueva_password" required minlength="6" placeholder="Ingresa tu nueva contraseña">
+                        <label for="nueva_password">Nueva Contraseña * (Mínimo 12 caracteres)</label>
+                        <input type="password" id="nueva_password" name="nueva_password" required minlength="12" placeholder="Ingresa tu nueva contraseña">
                     </div>
 
                     <div class="form-group">
                         <label for="confirmar_password">Confirmar Nueva Contraseña *</label>
-                        <input type="password" id="confirmar_password" name="confirmar_password" required minlength="6" placeholder="Repite tu nueva contraseña">
+                        <input type="password" id="confirmar_password" name="confirmar_password" required minlength="12" placeholder="Repite tu nueva contraseña">
                     </div>
                 </div>
                 <div class="modal-footer">

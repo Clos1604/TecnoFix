@@ -4,9 +4,8 @@
  * Maneja la Autenticación, Creación de Usuarios por Admin y Cambio de Contraseña Inicial
  */
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../config/session.php';
+startSecureSession();
 
 require_once __DIR__ . '/../models/Usuario.php';
 
@@ -14,8 +13,12 @@ class AuthController {
 
     public static function processLogin() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = trim($_POST['username'] ?? '');
-            $password = $_POST['password'] ?? '';
+            if (!self::isCsrfValid()) {
+                return ['success' => false, 'message' => 'La sesión del formulario expiró. Recargue la página.'];
+            }
+
+            $username = trim(self::postString('username'));
+            $password = self::postString('password');
 
             if (empty($username) || empty($password)) {
                 return ['success' => false, 'message' => 'Por favor complete todos los campos de acceso.'];
@@ -24,6 +27,7 @@ class AuthController {
             $user = Usuario::login($username, $password);
 
             if ($user) {
+                session_regenerate_id(true);
                 $_SESSION['usuario_logged'] = true;
                 $_SESSION['user_id'] = $user['id_usuario'];
                 $_SESSION['user_nombre'] = $user['nombre'];
@@ -46,18 +50,22 @@ class AuthController {
 
     public static function crearUsuario() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Verificar si el usuario actual es Administrador
-            $userRol = $_SESSION['user_rol'] ?? 'Administrador';
-            if ($userRol !== 'Administrador') {
+            if (!self::isAuthenticated() || ($_SESSION['user_rol'] ?? null) !== 'Administrador') {
                 return ['success' => false, 'message' => 'Solo un Administrador tiene permisos para crear usuarios.'];
             }
+            if (!self::isCsrfValid()) {
+                return ['success' => false, 'message' => 'La sesión del formulario expiró. Recargue la página.'];
+            }
 
-            $nombre = trim($_POST['nombre'] ?? '');
-            $email = trim($_POST['email'] ?? '');
-            $rol = trim($_POST['rol'] ?? 'Recepcion');
+            $nombre = trim(self::postString('nombre'));
+            $email = trim(self::postString('email'));
+            $rol = trim(self::postString('rol', 'Recepcion'));
 
             if (empty($nombre) || empty($email) || empty($rol)) {
                 return ['success' => false, 'message' => 'Por favor complete todos los campos obligatorios del usuario.'];
+            }
+            if (strlen($nombre) > 100 || strlen($email) > 120 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return ['success' => false, 'message' => 'El nombre o el correo electrónico no son válidos.'];
             }
 
             $res = Usuario::crearUsuario($nombre, $email, $rol);
@@ -76,16 +84,20 @@ class AuthController {
 
     public static function cambiarPasswordInicial() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $userId = $_SESSION['user_id'] ?? intval($_POST['user_id'] ?? 0);
-            $nuevaPassword = $_POST['nueva_password'] ?? '';
-            $confirmarPassword = $_POST['confirmar_password'] ?? '';
+            if (!self::isAuthenticated() || !self::isCsrfValid()) {
+                return ['success' => false, 'message' => 'Sesión no válida para cambio de contraseña.'];
+            }
+
+            $userId = intval($_SESSION['user_id'] ?? 0);
+            $nuevaPassword = self::postString('nueva_password');
+            $confirmarPassword = self::postString('confirmar_password');
 
             if ($userId <= 0) {
                 return ['success' => false, 'message' => 'Sesión no válida para cambio de contraseña.'];
             }
 
-            if (strlen($nuevaPassword) < 6) {
-                return ['success' => false, 'message' => 'La nueva contraseña debe tener al menos 6 caracteres.'];
+            if (strlen($nuevaPassword) < 12) {
+                return ['success' => false, 'message' => 'La nueva contraseña debe tener al menos 12 caracteres.'];
             }
 
             if ($nuevaPassword !== $confirmarPassword) {
@@ -105,10 +117,16 @@ class AuthController {
     }
 
     public static function listarUsuarios() {
+        if (!self::isAuthenticated() || self::isPasswordChangePending() || ($_SESSION['user_rol'] ?? '') !== 'Administrador') {
+            return ['success' => false, 'message' => 'Debe iniciar sesión para consultar usuarios.'];
+        }
         return Usuario::getAll();
     }
 
     public static function logout() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !self::isCsrfValid()) {
+            return ['success' => false, 'message' => 'Solicitud no válida.'];
+        }
         session_unset();
         session_destroy();
         return ['success' => true, 'message' => 'Sesión cerrada correctamente.'];
@@ -116,5 +134,20 @@ class AuthController {
 
     public static function isAuthenticated() {
         return !empty($_SESSION['usuario_logged']) && $_SESSION['usuario_logged'] === true;
+    }
+
+    public static function isPasswordChangePending() {
+        return !empty($_SESSION['debe_cambiar_pass']);
+    }
+
+    public static function isCsrfValid() {
+        $submittedToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+        $sessionToken = $_SESSION['csrf_token'] ?? '';
+        return $submittedToken !== '' && $sessionToken !== '' && hash_equals($sessionToken, $submittedToken);
+    }
+
+    private static function postString($key, $default = '') {
+        $value = $_POST[$key] ?? $default;
+        return is_string($value) ? $value : $default;
     }
 }

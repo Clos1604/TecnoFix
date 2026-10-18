@@ -51,7 +51,8 @@ loginForm.addEventListener("submit", function (event) {
 
     const user = loginForm.querySelector('input[type="text"], input[type="email"]').value.trim();
     const password = loginForm.querySelector('input[type="password"]').value;
-    if (user !== "admin" || password !== "1234") { showMessage("Credenciales inválidas. Usa admin y 1234."); return; }
+    if (!user || !password) { showMessage("Ingresa un usuario y una contraseña para continuar."); return; }
+    showMessage("Este prototipo no valida identidades ni protege datos. Usa la versión V3 para autenticación.");
     // Ocultamos la pantalla de login.
     loginScreen.classList.remove("active");
 

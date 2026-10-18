@@ -1,0 +1,13 @@
+version = 1
+test_patterns = ["tests/**"]
+
+[[analyzers]]
+name = "php"
+enabled = true
+
+[analyzers.meta]
+runtime_version = "8.2"
+
+[[analyzers]]
+name = "javascript"
+enabled = true

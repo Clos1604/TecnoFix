@@ -9,14 +9,7 @@ USE `tecnofix_db`;
 -- ---------------------------------------------------------
 -- 1. TABLA: usuarios
 -- ---------------------------------------------------------
-DROP TABLE IF EXISTS `historial_ordenes`;
-DROP TABLE IF EXISTS `ordenes_servicio`;
-DROP TABLE IF EXISTS `equipos`;
-DROP TABLE IF EXISTS `clientes`;
-DROP TABLE IF EXISTS `usuarios`;
-DROP TABLE IF EXISTS `migracion_log`;
-
-CREATE TABLE `usuarios` (
+CREATE TABLE IF NOT EXISTS `usuarios` (
     `id_usuario` INT AUTO_INCREMENT PRIMARY KEY,
     `nombre` VARCHAR(100) NOT NULL,
     `email` VARCHAR(120) NOT NULL UNIQUE,
@@ -30,7 +23,7 @@ CREATE TABLE `usuarios` (
 -- ---------------------------------------------------------
 -- 2. TABLA: clientes
 -- ---------------------------------------------------------
-CREATE TABLE `clientes` (
+CREATE TABLE IF NOT EXISTS `clientes` (
     `id_cliente` INT AUTO_INCREMENT PRIMARY KEY,
     `nombre_completo` VARCHAR(120) NOT NULL,
     `cedula_rnc` VARCHAR(20) UNIQUE,
@@ -43,7 +36,7 @@ CREATE TABLE `clientes` (
 -- ---------------------------------------------------------
 -- 3. TABLA: equipos
 -- ---------------------------------------------------------
-CREATE TABLE `equipos` (
+CREATE TABLE IF NOT EXISTS `equipos` (
     `id_equipo` INT AUTO_INCREMENT PRIMARY KEY,
     `id_cliente` INT NOT NULL,
     `tipo_dispositivo` VARCHAR(50) NOT NULL,
@@ -57,7 +50,7 @@ CREATE TABLE `equipos` (
 -- ---------------------------------------------------------
 -- 4. TABLA: ordenes_servicio
 -- ---------------------------------------------------------
-CREATE TABLE `ordenes_servicio` (
+CREATE TABLE IF NOT EXISTS `ordenes_servicio` (
     `id_orden` INT AUTO_INCREMENT PRIMARY KEY,
     `codigo_orden` VARCHAR(20) NOT NULL UNIQUE,
     `id_cliente` INT NOT NULL,
@@ -79,7 +72,7 @@ CREATE TABLE `ordenes_servicio` (
 -- ---------------------------------------------------------
 -- 5. TABLA: historial_ordenes
 -- ---------------------------------------------------------
-CREATE TABLE `historial_ordenes` (
+CREATE TABLE IF NOT EXISTS `historial_ordenes` (
     `id_historial` INT AUTO_INCREMENT PRIMARY KEY,
     `id_orden` INT NOT NULL,
     `estado_anterior` VARCHAR(30) NOT NULL,
@@ -94,7 +87,7 @@ CREATE TABLE `historial_ordenes` (
 -- ---------------------------------------------------------
 -- 6. TABLA: migracion_log
 -- ---------------------------------------------------------
-CREATE TABLE `migracion_log` (
+CREATE TABLE IF NOT EXISTS `migracion_log` (
     `id_log` INT AUTO_INCREMENT PRIMARY KEY,
     `sistema_origen` VARCHAR(100) NOT NULL,
     `registros_procesados` INT NOT NULL,
@@ -105,31 +98,4 @@ CREATE TABLE `migracion_log` (
     `fecha_ejecucion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- =========================================================
--- DATOS INICIALES (SEED DATA)
--- =========================================================
-
-INSERT INTO `usuarios` (`id_usuario`, `nombre`, `email`, `password_hash`, `rol`, `estado`, `debe_cambiar_pass`) VALUES
-(1, 'Administrador TecnoFix', 'admin@tecnofix.com', '$2y$10$K2e.nIqjH35rXGZpYwS28.3m0F5Q7u.Xn1.Qz3Fz/N.P1O9Yn/6OW', 'Administrador', 'Activo', 0),
-(2, 'Carlos Ruiz (Técnico Senior)', 'carlos.tecnico@tecnofix.com', '$2y$10$K2e.nIqjH35rXGZpYwS28.3m0F5Q7u.Xn1.Qz3Fz/N.P1O9Yn/6OW', 'Tecnico', 'Activo', 0),
-(3, 'María López (Recepción)', 'maria.recepcion@tecnofix.com', '$2y$10$K2e.nIqjH35rXGZpYwS28.3m0F5Q7u.Xn1.Qz3Fz/N.P1O9Yn/6OW', 'Recepcion', 'Activo', 0),
-(4, 'Pedro Ramírez (Técnico Nuevo)', 'pedro.nuevo@tecnofix.com', '$2y$10$w8T07S6.l/aNfC9Z1mH2eO0O1kG9x1u5q0G4o.Xn1.Qz3Fz/N.P1O', 'Tecnico', 'Activo', 1);
-
-INSERT INTO `clientes` (`id_cliente`, `nombre_completo`, `cedula_rnc`, `telefono`, `email`, `direccion`) VALUES
-(1, 'Juan Pérez', '001-1234567-8', '809-555-0101', 'juan.perez@email.com', 'Av. 27 de Febrero #45, SD'),
-(2, 'Ana Gómez', '001-7654321-9', '809-555-0202', 'ana.gomez@email.com', 'Calle El Sol #12, Santiago'),
-(3, 'Empresa Inversiones SRL', '130-998877-1', '809-555-0303', 'contacto@inversiones.com', 'Torre Empresarial Piso 5');
-
-INSERT INTO `equipos` (`id_equipo`, `id_cliente`, `tipo_dispositivo`, `marca`, `modelo`, `numero_serie`) VALUES
-(1, 1, 'Laptop', 'Dell', 'XPS 15 9520', 'SN-DELL-99812'),
-(2, 2, 'Smartphone', 'Apple', 'iPhone 13 Pro', 'SN-APPL-77123'),
-(3, 3, 'Desktop PC', 'Custom', 'Core i7 12th Gen', 'SN-CUST-33411');
-
-INSERT INTO `ordenes_servicio` (`id_orden`, `codigo_orden`, `id_cliente`, `id_equipo`, `id_tecnico`, `diagnostico_inicial`, `solucion_propuesta`, `estado`, `costo_estimado`, `costo_final`, `fecha_ingreso`, `fecha_estimada`) VALUES
-(1, 'ORD-2026-001', 1, 1, 2, 'El equipo no enciende tras descarga eléctrica.', 'Reemplazo de chip de carga y tarjeta madre.', 'En Proceso', 4500.00, 0.00, NOW(), '2026-10-10'),
-(2, 'ORD-2026-002', 2, 2, 2, 'Pantalla fisurada y falla en digitalizador táctil.', 'Cambio de pantalla completa OLED.', 'Pendiente', 6800.00, 0.00, NOW(), '2026-10-08'),
-(3, 'ORD-2026-003', 3, 3, NULL, 'Mantenimiento preventivo y formateo de sistema.', 'Limpieza de componentes y reinstalación de SO.', 'Completado', 2500.00, 2500.00, '2026-10-01', '2026-10-03');
-
-INSERT INTO `historial_ordenes` (`id_historial`, `id_orden`, `estado_anterior`, `estado_nuevo`, `observaciones`, `id_usuario`) VALUES
-(1, 1, 'Pendiente', 'En Proceso', 'Se desmonta la tarjeta para diagnóstico avanzado.', 2),
-(2, 3, 'En Proceso', 'Completado', 'Mantenimiento realizado y pruebas pasadas exitosamente.', 1);
+-- Los datos de demostración se cargan explícitamente desde tecnofix_demo_data.sql.

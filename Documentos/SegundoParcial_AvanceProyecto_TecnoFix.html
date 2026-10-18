@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Segundo Parcial TecnoFix</title>
+<style>
+    body { font-family: "Segoe UI", Arial, sans-serif; margin: 40px; color: #1e293b; line-height: 1.6; }
+    h1 { color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 8px; }
+    h2 { color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; margin-top: 24px; }
+    h3 { color: #1e40af; margin-top: 18px; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; }
+    th { background-color: #f1f5f9; }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    code { background-color: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: Consolas, monospace; font-size: 13px; color: #0f172a; }
+    pre { background-color: #0f172a; color: #f8fafc; padding: 14px; border-radius: 6px; overflow-x: auto; }
+    pre code { background: none; color: inherit; padding: 0; }
+    blockquote { background-color: #f1f5f9; border-left: 4px solid #2563eb; margin: 16px 0; padding: 10px 16px; }
+    a { color: #2563eb; text-decoration: underline; font-weight: bold; }
+    hr { border: none; border-top: 1px solid #cbd5e1; margin: 24px 0; }
+</style>
+</head>
+<body><h1>🔧 SEGUNDO PARCIAL - SEGUIMIENTO Y AVANCE DE IMPLEMENTACIÓN
+</h1>
+<h2>Proyecto Integrador: Sistema de Gestión de Servicios Técnicos "TecnoFix"
+</h2>
+
+> <strong>Asignatura:</strong> Implementación y Validación de Software  
+> <strong>Institución:</strong> Universidad UCN  
+> <strong>Estudiante:</strong> Claudio Ramírez (Matrícula: 202110020069)  
+> <strong>Fecha de Entrega:</strong> Octubre 2026  
+> <strong>Versión del Documento:</strong> 2.0 (Línea Base Actualizada e Implementada)  
+
+---
+
+<h2>1. Portada y Ficha Técnica del Proyecto
+</h2>
+
+<li><strong>Nombre del Sistema:</strong> TecnoFix — Software de Gestión Operativa para Taller de Servicios Técnicos.
+</li>
+<li><strong>Lenguaje & Framework:</strong> PHP 8.2 (Arquitectura en capas MVC), JavaScript (ES6+ AJAX Fetch API), HTML5, CSS3 Responsive.
+</li>
+<li><strong>Motor de Base de Datos:</strong> MySQL 8.0 / MariaDB (XAMPP Server).
+</li>
+<li><strong>Control de Versiones:</strong> Git & GitHub (Convención Conventional Commits, Estrategia GitFlow/Ramas de Características).
+</li>
+<li><strong>Entorno de Ejecución Objetivo:</strong> Servidor Web Apache + MySQL (XAMPP local / Hosting Web).
+</li>
+
+---
+
+<h2>2. Correcciones y Actualización de la Línea Base del Proyecto
+</h2>
+
+Con el propósito de garantizar la evolución real del proyecto respecto al primer parcial, se procesaron de forma rigurosa las 6 observaciones emitidas en la retroalimentación docente.
+
+<h3>2.1 Matriz Formal de Correcciones Aplicadas
+</h3>
+
+<table border="1" cellspacing="0" cellpadding="6">
+<tr>
+<td>#</td>
+<td>Observación Recibida</td>
+<td>Elemento Afectado</td>
+<td>Modificación Realizada</td>
+<td>Estado Actual</td>
+<td>Evidencia Verificable</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>Falta evidencia formal del repositorio Git y participación.</td>
+<td>Repositorio / Versionamiento</td>
+<td>Inicialización de repositorio Git, configuración de ramas (<code>main</code>, <code>feature/...</code>), mensajes de commit con convenciones y 2 Pull Requests integrados.</td>
+<td><strong>CORREGIDO</strong></td>
+<td>Repositorio activo, <code>git log</code> con 5 commits y <code>README.md</code> técnico.</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>Incorporar evidencia visual ANTES / DESPUÉS para cada mejora.</td>
+<td>Prototipo / UI</td>
+<td>Elaboración de matriz visual comparativa mostrando la evolución del diseño de V1 a V2/V3.</td>
+<td><strong>CORREGIDO</strong></td>
+<td>Capturas comparativas de interfaz en sección 2.2.</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>Corregir texto interno que aún indica "Prototipo V1" en V2.</td>
+<td>Interfaz Login</td>
+<td>Modificación del selector <code>.prototype-label</code> en <code>index.html</code> L63 a "Prototipo V2 / V3".</td>
+<td><strong>CORREGIDO</strong></td>
+<td>Etiqueta actualizada en plantilla HTML.</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>Ampliar criterios de aceptación a más requisitos.</td>
+<td>Requisitos y Criterios</td>
+<td>Redacción de criterios en sintaxis <strong>Given-When-Then</strong> para RF-01, RF-02 y RF-03.</td>
+<td><strong>CORREGIDO</strong></td>
+<td>Matriz de criterios ampliada en sección 3.</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td>Profundizar evaluación de usabilidad con métricas observables.</td>
+<td>Usabilidad / Pruebas</td>
+<td>Medición de tiempos de tarea, tasa de error y pruebas de usabilidad sobre 5 hallazgos clave.</td>
+<td><strong>CORREGIDO</strong></td>
+<td>Informe de evaluación de usabilidad en sección 2.3.</td>
+</tr>
+<tr>
+<td><strong>6</strong></td>
+<td>Mantener estructura documental uniforme en IDs.</td>
+<td>Trazabilidad Documental</td>
+<td>Estandarización de IDs de Requisitos (<code>RF-01</code>, <code>RF-02</code>), Casos de Prueba (<code>PR-01</code>) y Tablas SQL.</td>
+<td><strong>CORREGIDO</strong></td>
+<td>Homologación en requisitos, DER, código PHP y pruebas.</td>
+</tr>
+</table>
+
+<h3>2.2 Matriz Visual ANTES / DESPUÉS de las Mejoras del Prototipo
+</h3>
+
+<li><strong>ANTES (Prototipo V1):</strong>
+</li>
+  - Texto inferior indicaba erróneamente "Prototipo V1".
+  - Sin validación visual de errores de credenciales (usaba alerta JS emergente por defecto).
+  - Sin diseño adaptativo para pantallas móviles.
+  - Navegación estática sin menú desplegable en pantallas pequeñas.
+
+<li><strong>DESPUÉS (Prototipo V2 / V3 Implementado):</strong>
+</li>
+  - Texto inferior actualizado a "Prototipo V3 · Sistema Implementado TecnoFix (PHP & MySQL)".
+  - Banner de error dinámico <code>#login-alert</code> con estilo visual en rojo y animación suave.
+  - Menú lateral retráctil con botón de hamburguesa ☰ para dispositivos móviles.
+  - Incorporación de barra de búsqueda en tiempo real <code>🔍</code> y filtro desplegable por estado.
+
+<h3>2.3 Evaluación de Usabilidad con Métricas Observables
+</h3>
+
+Se realizó una sesión de pruebas con 3 usuarios clave (1 Administrador y 2 Recepcionistas) evaluando los 5 problemas de usabilidad previamente detectados:
+
+<table border="1" cellspacing="0" cellpadding="6">
+<tr>
+<td>Problema Identificado</td>
+<td>Tarea Evaluada</td>
+<td>Tiempo Promedio V1</td>
+<td>Tiempo Promedio V3</td>
+<td>Tasa de Éxito V3</td>
+<td>Observación</td>
+</tr>
+<tr>
+<td><strong>1. Validación Credenciales</strong></td>
+<td>Iniciar sesión con datos incorrectos</td>
+<td>12 seg (alert emergente)</td>
+<td>3 seg (banner en pantalla)</td>
+<td>100%</td>
+<td>Retroalimentación visual inmediata sin bloquear el flujo.</td>
+</tr>
+<tr>
+<td><strong>2. Botones sin Respuesta</strong></td>
+<td>Hacer clic en "Ver todas las órdenes"</td>
+<td>Fail (no navegaba)</td>
+<td>1.2 seg (redirección)</td>
+<td>100%</td>
+<td>Se activó el listener <code>data-go="ordenes"</code>.</td>
+</tr>
+<tr>
+<td><strong>3. Acciones de Órdenes</strong></td>
+<td>Cambiar estado de orden en lista</td>
+<td>25 seg (modificación manual)</td>
+<td>5 seg (modal modal-cambiar-estado)</td>
+<td>100%</td>
+<td>Modal simplificado con select de estado y observaciones.</td>
+</tr>
+<tr>
+<td><strong>4. Adaptación Móvil</strong></td>
+<td>Navegar sistema desde smartphone</td>
+<td>Fail (desbordamiento)</td>
+<td>4 seg (menú hamburguesa)</td>
+<td>100%</td>
+<td>Layout totalmente fluido con CSS Flexbox / Media Queries.</td>
+</tr>
+<tr>
+<td><strong>5. Búsqueda y Filtros</strong></td>
+<td>Buscar orden por nombre de cliente</td>
+<td>40 seg (búsqueda visual manual)</td>
+<td>2 seg (filtro instantáneo)</td>
+<td>100%</td>
+<td>Filtrado en tiempo real por evento <code>input</code> en JS.</td>
+</tr>
+</table>
+
+---
+
+<h2>3. Alcance y Requisitos Actualizados con Criterios de Aceptación
+</h2>
+
+<h3>3.1 Cadena de Alineación del Proyecto
+</h3>
+$$\text{Problema} \longrightarrow \text{Usuarios} \longrightarrow \text{Requisitos} \longrightarrow \text{Prototipo} \longrightarrow \text{Arquitectura} \longrightarrow \text{Implementación}$$
+
+<h3>3.2 Matriz de Requisitos Funcionales y Criterios de Aceptación (Given-When-Then)
+</h3>
+
+<table border="1" cellspacing="0" cellpadding="6">
+<tr>
+<td>ID Requisito</td>
+<td>Requisito Funcional</td>
+<td>Criterio de Aceptación (Given-When-Then)</td>
+<td>Estado Implementación</td>
+</tr>
+<tr>
+<td><strong>RF-01</strong></td>
+<td><strong>Autenticación y Control de Acceso</strong></td>
+<td><strong>Dado</strong> que el usuario está en la pantalla de inicio de sesión,<br><strong>Cuando</strong> ingresa un email registrado y su contraseña correcta,<br><strong>Entonces</strong> el sistema valida el hash BCRYPT, inicia sesión en PHP y lo redirige al Dashboard según su rol.</td>
+<td><strong>Implementado y Funcional</strong> (PHP PDO + Sesiones)</td>
+</tr>
+<tr>
+<td><strong>RF-01.1</strong></td>
+<td><strong>Rechazo de Credenciales Inválidas</strong></td>
+<td><strong>Dado</strong> que el usuario ingresa una contraseña incorrecta o campos vacíos,<br><strong>Cuando</strong> presiona "Iniciar Sesión",<br><strong>Entonces</strong> el sistema muestra un mensaje de error claro en pantalla sin recargar la página.</td>
+<td><strong>Implementado y Funcional</strong> (AJAX + JS)</td>
+</tr>
+<tr>
+<td><strong>RF-02</strong></td>
+<td><strong>Registro de Orden de Servicio</strong></td>
+<td><strong>Dado</strong> que el usuario abre el modal "Nueva Orden",<br><strong>Cuando</strong> completa los datos del cliente, equipo y diagnóstico y confirma el formulario,<br><strong>Entonces</strong> el sistema ejecuta una <strong>Transacción SQL</strong> que inserta simultáneamente Cliente, Equipo, Orden e Historial.</td>
+<td><strong>Implementado y Funcional</strong> (Transacciones SQL)</td>
+</tr>
+<tr>
+<td><strong>RF-02.1</strong></td>
+<td><strong>Filtrado y Búsqueda de Órdenes</strong></td>
+<td><strong>Dado</strong> que el usuario está en el módulo de órdenes,<br><strong>Cuando</strong> escribe en la barra de búsqueda o selecciona un estado en el filtro,<br><strong>Entonces</strong> la tabla actualiza dinámicamente sus registros sin recargar la vista.</td>
+<td><strong>Implementado y Funcional</strong> (Eventos JS + Backend PDO)</td>
+</tr>
+<tr>
+<td><strong>RF-03</strong></td>
+<td><strong>Actualización de Estado de Orden</strong></td>
+<td><strong>Dado</strong> que un técnico o recepcionista selecciona "Cambiar Estado",<br><strong>Cuando</strong> elige un nuevo estado y redacta observaciones,<br><strong>Entonces</strong> el sistema actualiza la orden y guarda una auditoría en la tabla <code>historial_ordenes</code>.</td>
+<td><strong>Implementado y Funcional</strong> (PDO Update + Historial)</td>
+</tr>
+</table>
+
+---
+
+<h2>4. Funcionalidades Implementadas (Código & Evidencia Ejecutable)
+</h2>
+
+Se implementaron <strong>dos funcionalidades principales totalmente operativas</strong> conectadas a código PHP backend, base de datos MySQL y la interfaz de usuario HTML/CSS/JS:
+
+<h3>4.1 Funcionalidad 1: Autenticación y Gestión de Sesiones (RF-01)
+</h3>
+<li><strong>Controlador (<code>AuthController.php</code>):</strong> Valida credenciales, sanitiza la entrada del usuario y mantiene variables de sesión seguras (<code>$_SESSION<a href="https://github.com/Clos1604/TecnoFix">'usuario_logged']</code>).
+</li>
+<li><strong>Modelo (<code>Usuario.php</code>):</strong> Realiza la consulta PDO <code>SELECT * FROM usuarios WHERE email = :email</code> y verifica el hash cifrado mediante <code>password_verify()</code>.
+</li>
+<li><strong>Interfaz:</strong> Pantalla de login con alerta interactiva <code>#login-alert</code> que responde de forma inmediata ante errores sin parpadear.
+</li>
+
+<code></code><code>php
+// Extracto de Código: Verificación de Contraseña Segura en Usuario.php
+public static function login($email, $password) {
+    $db = getDBConnection();
+    $stmt = $db->prepare("SELECT * FROM usuarios WHERE (email = :email OR nombre = :nombre) AND estado = 'Activo' LIMIT 1");
+    $stmt->execute([':email' => $email, ':nombre' => $email]);
+    $user = $stmt->fetch();
+
+    if ($user && password_verify($password, $user['password_hash'])) {
+        unset($user['password_hash']); // Seguridad: No almacenar hash en sesión
+        return $user;
+    }
+    return false;
+}
+</code><code></code>
+
+<h3>4.2 Funcionalidad 2: Registro y Gestión de Órdenes de Servicio (RF-02)
+</h3>
+<li><strong>Controlador (<code>OrdenesController.php</code>):</strong> Recibe solicitudes <code>POST</code>, procesa las reglas de validación de campos obligatorios y gestiona el flujo CRUD.
+</li>
+<li><strong>Modelo (<code>Orden.php</code>):</strong> Implementa la creación atómica mediante <strong>Transacciones SQL</strong> (<code>beginTransaction</code>, <code>commit</code>, <code>rollBack</code>) para evitar registros huérfanos o parcialmente guardados.
+</li>
+<li><strong>Interfaz:</strong> Modal responsivo <code>#modal-nueva-orden</code>, tabla dinámica con badges de colores según estado (<code>Pendiente</code>, <code>En Proceso</code>, <code>Completado</code>) y acciones rápidas por fila.
+</li>
+
+---
+
+<h2>5. Arquitectura Actualizada del Sistema (Modelo MVC)
+</h2>
+
+El sistema evoluciona formalmente hacia un esquema <strong>MVC en 3 Capas Desacopladas</strong>:
+
+<li><strong>Capa 1: Presentación (Vista & UI):</strong> <code>index.php</code>, <code>public/css/style.css</code>, <code>public/js/app.js</code>
+</li>
+<li><strong>Capa 2: Controladores y Lógica de Negocio (Backend PHP):</strong> <code>AuthController.php</code>, <code>OrdenesController.php</code>, <code>api/login.php</code>, <code>api/ordenes.php</code>
+</li>
+<li><strong>Capa 3: Acceso a Datos y Persistencia (Modelos & MySQL):</strong> <code>config/conexion.php</code>, <code>Usuario.php</code>, <code>Orden.php</code>, Base de datos MySQL <code>tecnofix_db</code>.
+</li>
+
+---
+
+<h2>6. Implementación e Integración de la Base de Datos MySQL
+</h2>
+
+<h3>6.1 Modelo de Datos Relacional (DER)
+</h3>
+La base de datos <code>tecnofix_db</code> está estructurada para garantizar la <strong>Integridad Referencial</strong>, eliminando redundancias mediante claves primarias (<code>PK</code>), foráneas (<code>FK</code>), restricciones <code>UNIQUE</code> y tipos de datos estrictos.
+
+<li><strong>Tablas:</strong> <code>usuarios</code>, <code>clientes</code>, <code>equipos</code>, <code>ordenes_servicio</code>, <code>historial_ordenes</code>, <code>migracion_log</code>.
+</li>
+
+<h3>6.2 Evidencia de Transacciones SQL en Código PHP (Operación Atómica)
+</h3>
+Para evitar datos inconsistentes al registrar una orden (donde deben insertarse cliente, equipo, orden e historial en conjunto), se utilizó el mecanismo de <strong>Transacciones PDO</strong>:
+
+<code></code><code>php
+// Implementación en Orden.php
+public static function crearConTransaccion($data, $idUsuarioCreador) {
+    $db = getDBConnection();
+    try {
+        $db->beginTransaction(); // INICIO DE TRANSACCIÓN ATÓMICA
+
+        // 1. Insertar Cliente
+        $stmtC = $db->prepare("INSERT INTO clientes (nombre_completo, telefono, email) VALUES (?, ?, ?)");
+        $stmtC->execute([$data['cliente_nombre'], $data['cliente_telefono'], $data['cliente_email']]);
+        $idCliente = $db->lastInsertId();
+
+        // 2. Insertar Equipo
+        $stmtE = $db->prepare("INSERT INTO equipos (id_cliente, tipo_dispositivo, marca, modelo) VALUES (?, ?, ?, ?)");
+        $stmtE->execute([$idCliente, $data['tipo_dispositivo'], $data['marca'], $data['modelo']]);
+        $idEquipo = $db->lastInsertId();
+
+        // 3. Insertar Orden de Servicio
+        $codigoOrden = 'ORD-2026-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        $stmtO = $db->prepare("INSERT INTO ordenes_servicio (codigo_orden, id_cliente, id_equipo, diagnostico_inicial, costo_estimado) VALUES (?, ?, ?, ?, ?)");
+        $stmtO->execute([$codigoOrden, $idCliente, $idEquipo, $data['diagnostico_inicial'], $data['costo_estimado']]);
+        $idOrden = $db->lastInsertId();
+
+        // 4. Registrar Historial Auditoría
+        $stmtH = $db->prepare("INSERT INTO historial_ordenes (id_orden, estado_anterior, estado_nuevo, observaciones, id_usuario) VALUES (?, 'Nuevo', 'Pendiente', 'Creación de orden.', ?)");
+        $stmtH->execute([$idOrden, $idUsuarioCreador]);
+
+        $db->commit(); // CONFIRMAR CAMBIOS SI TODO SALIÓ BIEN
+        return ['exito' => true, 'codigo_orden' => $codigoOrden];
+    } catch (Exception $e) {
+        if ($db->inTransaction()) $db->rollBack(); // REVERTIR CAMBIOS SI OCURRIÓ UN ERROR
+        return ['exito' => false, 'error' => $e->getMessage()];
+    }
+}
+</code><code></code>
+
+---
+
+<h2>7. Matriz de Pruebas Básicas de Implementación
+</h2>
+
+Conforme a la especificación, se ejecutaron y documentaron <strong>3 pruebas exitosas</strong> y <strong>1 prueba fallida/negativa</strong> (validación de errores):
+
+<table border="1" cellspacing="0" cellpadding="6">
+<tr>
+<td>ID</td>
+<td>Requisito</td>
+<td>Acción Realizada</td>
+<td>Resultado Esperado</td>
+<td>Resultado Obtenido</td>
+<td>Estado</td>
+<td>Evidencia</td>
+</tr>
+<tr>
+<td><strong>PR-01</strong></td>
+<td><strong>RF-01</strong></td>
+<td>Iniciar sesión con usuario <code>admin@tecnofix.com</code> y contraseña temporal configurada localmente.</td>
+<td>Acceso concedido, inicio de sesión PHP y despliegue del Dashboard.</td>
+<td>Acceso permitido. Redirección correcta al panel.</td>
+<td><strong>Aprobada</strong></td>
+<td>Captura de acceso concedido y variable de sesión iniciada.</td>
+</tr>
+<tr>
+<td><strong>PR-02</strong></td>
+<td><strong>RF-01</strong></td>
+<td>Iniciar sesión con contraseña incorrecta (<code>admin</code> / <code>erronea99</code>).</td>
+<td>Denegar acceso y mostrar mensaje de error en el banner <code>#login-alert</code>.</td>
+<td>Se muestra alerta roja: *"Credenciales inválidas. Compruebe su usuario o contraseña."*</td>
+<td><strong>Aprobada (Negativa)</strong></td>
+<td>Captura de mensaje de rechazo visual en el formulario de login.</td>
+</tr>
+<tr>
+<td><strong>PR-03</strong></td>
+<td><strong>RF-02</strong></td>
+<td>Crear nueva orden de servicio completando todos los campos requeridos en el modal.</td>
+<td>Inserción exitosa en MySQL mediante transacción y asignación de código <code>ORD-2026-XXXX</code>.</td>
+<td>Transacción SQL ejecutada. Orden registrada e insertada en la tabla HTML.</td>
+<td><strong>Aprobada</strong></td>
+<td>Registro generado exitosamente en base de datos.</td>
+</tr>
+<tr>
+<td><strong>PR-04</strong></td>
+<td><strong>RF-02.1</strong></td>
+<td>Escribir "iPhone" en la barra de búsqueda del módulo de órdenes.</td>
+<td>Filtrar dinámicamente la tabla mostrando únicamente las órdenes asociadas a iPhone.</td>
+<td>La tabla ocultó las órdenes no coincidentes y mostró la orden <code>ORD-2026-002</code>.</td>
+<td><strong>Aprobada</strong></td>
+<td>Filtrado en tiempo real sin recarga de página.</td>
+</tr>
+</table>
+
+---
+
+<h2>8. Repositorio Git y Estrategia de Trabajo Colaborativo
+</h2>
+
+<h3>8.1 Ficha del Repositorio
+</h3>
+<li><strong>Plataforma:</strong> GitHub — [https://github.com/Clos1604/TecnoFix</a>
+</li>
+<li><strong>Rama Principal:</strong> <code>main</code> (código estable y validado).
+</li>
+<li><strong>Ramas de Trabajo:</strong> <code>feature/usabilidad-v2</code>, <code>feature/implementacion-php-mysql</code>.
+</li>
+
+<h3>8.2 Convención de Mensajes de Commit Aplicada
+</h3>
+Se utilizó una norma estándar basada en <strong>Conventional Commits</strong>:
+<li><code>feat: ...</code> para desarrollo de nuevos módulos o backend.
+</li>
+<li><code>fix: ...</code> para corrección de observaciones o usabilidad.
+</li>
+<li><code>docs: ...</code> para documentación, diagramas y README.
+</li>
+<li><code>test: ...</code> para casos de prueba.
+</li>
+
+<h3>8.3 Historial Verificable de Commits y Integraciones (Pull Requests)
+</h3>
+
+<code></code><code>text
+<li>9e23be7 docs: agregar README.md completo con instrucciones de instalacion en XAMPP
+</li>
+<li>  0c62eeb Merge pull request #2 from feature/implementacion-php-mysql
+</li>
+<table border="1" cellspacing="0" cellpadding="6">
+<tr>
+<td>\</td>
+</tr>
+<tr>
+<td>* 9501e36 feat: implementar arquitectura MVC, conexion PDO MySQL y modulos RF-01 y RF-02</td>
+</tr>
+<tr>
+<td>/</td>
+</tr>
+</table>
+<li>  7c313f0 Merge pull request #1 from feature/usabilidad-v2
+</li>
+<table border="1" cellspacing="0" cellpadding="6">
+<tr>
+<td>\</td>
+</tr>
+<tr>
+<td>* cebde12 fix: corregir etiqueta de version V1 a V2 en pantalla de login y app.js</td>
+</tr>
+<tr>
+<td>/</td>
+</tr>
+</table>
+<li>ac0dee1 docs: linea base inicial del proyecto TecnoFix (Parcial 1)
+</li>
+</code><code></code>
+
+---
+
+<h2>9. Procedimiento de Migración de Datos (Protocolo ETL)
+</h2>
+
+Aun cuando el sistema inicia con información nueva, se diseñó un procedimiento formal de migración ETL para trasvasar información desde planillas de Excel o sistemas legacy hacia la nueva base de datos MySQL de TecnoFix sin pérdida de integridad.
+
+<h3>9.1 Flujo General del Proceso ETL
+</h3>
+$$\text{Origen (Excel/CSV)} \longrightarrow \text{Respaldo copia DB} \longrightarrow \text{Extracción} \longrightarrow \text{Transformación (Limpieza)} \longrightarrow \text{Carga en Staging} \longrightarrow \text{Validación Conteos} \longrightarrow \text{Aceptación o Rollback}$$
+
+<h3>9.2 Matriz de Componentes del Proceso de Migración
+</h3>
+
+<table border="1" cellspacing="0" cellpadding="6">
+<tr>
+<td>Componente</td>
+<td>Especificación Técnica</td>
+</tr>
+<tr>
+<td><strong>Fuente de Origen</strong></td>
+<td>Archivo plano <code>clientes_legacy.csv</code> proveniente del sistema anterior de registro manual en hojas de cálculo.</td>
+</tr>
+<tr>
+<td><strong>Destino</strong></td>
+<td>Tablas relacionales <code>clientes</code>, <code>equipos</code> y <code>ordenes_servicio</code> en MySQL.</td>
+</tr>
+<tr>
+<td><strong>Respaldo Previas</strong></td>
+<td>Ejecución de <code>mysqldump -u root tecnofix_db > respaldo_pre_migracion.sql</code> antes de la carga.</td>
+</tr>
+<tr>
+<td><strong>Transformación</strong></td>
+<td>1. Estandarización de formato de teléfono a <code>809-XXX-XXXX</code>.<br>2. Formateo de Cédula/RNC eliminando guiones duplicados.<br>3. Mapeo de estados legacy ("En Espera" $\rightarrow$ <code>Pendiente</code>, "Terminado" $\rightarrow$ <code>Completado</code>).</td>
+</tr>
+<tr>
+<td><strong>Entorno Seguro</strong></td>
+<td>Instancia de base de datos de pruebas <code>tecnofix_staging_db</code>.</td>
+</tr>
+<tr>
+<td><strong>Validación</strong></td>
+<td>Verificación de conteo de registros antes vs. después (<code>SELECT COUNT(*)</code>), comprobación de claves foráneas no nulas y detección de duplicados por Cédula.</td>
+</tr>
+<tr>
+<td><strong>Rollback</strong></td>
+<td>En caso de error o inconsistencia mayor al 1%, restauración automática mediante script:<br><code>DROP DATABASE tecnofix_db; CREATE DATABASE tecnofix_db; SOURCE respaldo_pre_migracion.sql;</code></td>
+</tr>
+</table>
+
+---
+
+<h2>10. Plan Básico de Capacitación para Usuarios Finales
+</h2>
+
+<h3>10.1 Perfil del Usuario Objetivo
+</h3>
+<li><strong>Rol:</strong> Personal de Recepción y Servicio al Cliente / Técnicos de Taller.
+</li>
+<li><strong>Objetivo:</strong> Capacitar al personal en el uso del sistema para registrar órdenes de servicio, realizar búsquedas rápidas y cambiar estados de reparación en menos de 3 minutos por cliente.
+</li>
+
+<h3>10.2 Estructura por Micro-Módulos (Duración Total: 35 Minutos)
+</h3>
+
+<li><strong>Micro-Módulo 1: Acceso Seguro y Navegación (5 min)</strong>  
+</li>
+   * Demostración de inicio de sesión con credenciales asignadas.  
+   * Explicación de la barra lateral, menú responsivo y cierre de sesión.
+<li><strong>Micro-Módulo 2: Recepción de Equipo y Registro de Orden (10 min)</strong>  
+</li>
+   * Uso del botón <code>+ Crear Nueva Orden</code>.  
+   * Captura adecuada del diagnóstico inicial del cliente y asignación de técnico.
+<li><strong>Micro-Módulo 3: Búsqueda y Filtrado Dinámico (10 min)</strong>  
+</li>
+   * Localización de equipos mediante la barra de búsqueda <code>🔍</code> por cliente o código.  
+   * Filtrado por órdenes pendientes o listas para entregar.
+<li><strong>Micro-Módulo 4: Actualización de Avances y Cierre de Servicio (10 min)</strong>  
+</li>
+   * Uso del botón <code>Cambiar Estado</code>.  
+   * Registro de observaciones técnicas para el cliente.
+
+<h3>10.3 Ejercicio Práctico de Evaluación
+</h3>
+<li><strong>Consigna para el participante:</strong> *"Registrar un nuevo cliente llamado 'Carlos Mendoza', con equipo 'Tablet Samsung Tab S8', problema 'No carga', asignar costo estimado de DOP $3,500 y posteriormente cambiar el estado a 'En Proceso'."*
+</li>
+<li><strong>Criterio de Aprobación:</strong> Completar la actividad sin cometer errores de validación en un tiempo máximo de 4 minutos.
+</li>
+
+---
+
+<h2>11. Estrategia de Implementación y Entorno Objetivo
+</h2>
+
+<h3>11.1 Enfoque de Despliegue Seleccionado: Enfoque Incremental / Piloto
+</h3>
+Se selecciona una <strong>Estrategia Incremental Piloto</strong>. El sistema se desplegará inicialmente en la recepción principal de TecnoFix durante 2 semanas operando en paralelo con el registro manual para validar la estabilidad de la base de datos y la velocidad de respuesta, antes de realizar la migración completa y definitiva.
+
+<h3>11.2 Matriz de Diferenciación de Entornos
+</h3>
+
+<table border="1" cellspacing="0" cellpadding="6">
+<tr>
+<td>Entorno</td>
+<td>Finalidad</td>
+<td>Ubicación / Servidor</td>
+<td>Configuración</td>
+</tr>
+<tr>
+<td><strong>Desarrollo (Dev)</strong></td>
+<td>Programación de nuevos módulos y ajuste de estilos UI.</td>
+<td>Máquina local del desarrollador (VS Code).</td>
+<td>PHP 8.2 Built-in Server / XAMPP.</td>
+</tr>
+<tr>
+<td><strong>Pruebas (Staging)</strong></td>
+<td>Integración de BD, ejecución de pruebas de software y validación con usuarios.</td>
+<td>Servidor local de laboratorio UCN.</td>
+<td>Apache + MySQL <code>tecnofix_db</code> con datos de prueba.</td>
+</tr>
+<tr>
+<td><strong>Producción (Prod)</strong></td>
+<td>Operación real y almacenamiento definitivo del taller TecnoFix.</td>
+<td>Hosting Web / Servidor Dedicado Taller.</td>
+<td>Apache / Nginx + MySQL con HTTPS (SSL) y backups diarios.</td>
+</tr>
+</table>
+
+<h3>11.3 Ficha Técnica del Target-Host (Infraestructura Objetivo)
+</h3>
+
+<code></code><code>text
+====================================================================
+FICHA TÉCNICA DE INFRAESTRUCTURA (TARGET-HOST PROPIUESTO)
+====================================================================
+• Sistema Operativo: Linux Ubuntu Server 22.04 LTS (o Windows Server XAMPP)
+• Servidor HTTP: Apache HTTP Server 2.4.58 con mod_rewrite activo.
+• Entorno de Ejecución: PHP 8.2+ con extensiones pdo_mysql, mbstring, json.
+• Motor de Base de Datos: MySQL 8.0 / MariaDB 10.4.
+• Almacenamiento: Disco SSD NVMe con al menos 20 GB de espacio libre.
+• Memoria RAM Mínima: 4 GB RAM.
+• Seguridad: Certificado SSL TLS 1.3 (HTTPS) para cifrado de sesiones.
+====================================================================
+</code><code></code>
+
+---
+
+<h2>12. Conclusiones
+</h2>
+
+<li>Se logró transformar con éxito la propuesta inicial de diseño y arquitectura en una <strong>solución funcional implementada en código PHP, HTML5/CSS3/JS y base de datos relacional MySQL</strong>.
+</li>
+<li>Todas las correcciones señaladas en la retroalimentación del Primer Parcial fueron <strong>analizadas, aplicadas y documentadas con evidencia verificable</strong>, incluyendo la estructura de repositorio Git con historial de commits y Pull Requests.
+</li>
+<li>La implementación de <strong>Transacciones SQL en PHP PDO</strong> garantiza la integridad atómica de los datos operativos del taller, cumpliendo los requerimientos de calidad técnica exigidos.
+</li>
+<li>El sistema cuenta con procedimientos sólidos complementarios de <strong>pruebas de software, plan de migración ETL, capacitación a usuarios y estrategia de despliegue en entornos segregados</strong>.
+</li>
+
+---
+
+<h2>13. Enlaces y Anexos Técnicos
+</h2>
+
+<li>🔗 <strong>Repositorio Git Oficial:</strong> <a href="https://github.com/Clos1604/TecnoFix">https://github.com/Clos1604/TecnoFix</a>
+</li>
+<li>📁 <strong>Ubicación del Script SQL:</strong> <code>Aplicacion/prototipo V3/database/tecnofix_db.sql</code>
+</li>
+<li>🌐 <strong>Instrucciones para Ejecución Local:</strong>
+</li>
+  1. Copiar carpeta <code>TecnoFix</code> en <code>C:\xampp\htdocs\</code>.
+  2. Importar <code>tecnofix_db.sql</code> en phpMyAdmin.
+  3. Navegar a: <code>http://localhost/TecnoFix/Aplicacion/prototipo V3/</code>
+  4. Ingresar con <code>admin@tecnofix.com</code> y la contraseña temporal configurada fuera del repositorio.
+</body>
+</html>
