@@ -1,0 +1,10 @@
+USUARIOS DEMO DE TECNOFIX
+========================
+
+Estas cuentas de demostración se crean en la base local al ejecutar el
+inicializador. No hay contraseñas predeterminadas guardadas en el proyecto.
+
+Administrador
+  Usuario/correo: admin@tecnofix.com
+  Contraseña: TecnoFix2026*
+  Rol: Administrador

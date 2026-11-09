@@ -32,6 +32,61 @@ El inicializador requiere acceso a la base configurado con las variables `DB_*`.
 
 La credencial de MySQL que se encontraba en scripts auxiliares fue retirada, pero puede seguir presente en el historial de Git. Rótela en MySQL y en todos los entornos que la hayan usado; eliminar el texto de la revisión actual no invalida una contraseña expuesta en commits anteriores.
 
+### Recuperar el acceso administrador
+
+Use este procedimiento solo si la tabla `usuarios` quedó vacía y necesita recuperar el acceso en una instalación local. El script `Aplicacion/prototipo V3/scripts/recovery_admin.php` solo se ejecuta por CLI, exige `RECOVERY_ENVIRONMENT=local`, rechaza servidores de base de datos remotos y no continúa si ya hay cualquier usuario. No modifica otras tablas ni restablece datos. Inserta una única fila con rol `Administrador`, estado `Activo` y un hash generado con `password_hash(..., PASSWORD_DEFAULT)`.
+
+1. Detenga el servidor web mientras realiza la recuperación. Compruebe que MySQL está en ejecución y configure las variables `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASS` en la misma consola. `DB_HOST` debe ser `localhost`, `127.0.0.1` o `::1`.
+2. Cree un directorio de autorización fuera de `htdocs` y de `Aplicacion\prototipo V3`; por ejemplo:
+
+   ```powershell
+   $recoveryDir = Join-Path $env:USERPROFILE 'TecnoFix-recovery'
+   New-Item -ItemType Directory -Force $recoveryDir | Out-Null
+   icacls $recoveryDir /inheritance:r /grant:r "$($env:USERNAME):(OI)(CI)F"
+   ```
+
+   El comando anterior quita permisos heredados y concede acceso a la carpeta solo a la cuenta local actual. Genere un token de al menos 32 bytes aleatorios y guárdelo, sin comillas ni espacios adicionales, en `recovery-token.txt` dentro de esa carpeta. Por ejemplo, con PHP instalado:
+
+   ```powershell
+   $token = php -r "echo bin2hex(random_bytes(32));"
+   [System.IO.File]::WriteAllText((Join-Path $recoveryDir 'recovery-token.txt'), $token)
+   ```
+
+   Mantenga el token y el archivo fuera del repositorio y del directorio público. El archivo se elimina automáticamente después de crear el administrador.
+3. Configure autorización y los datos de la cuenta solo en la consola actual. No los escriba en el código, en la línea de comandos ni en archivos del proyecto:
+
+   ```powershell
+   $env:RECOVERY_ENVIRONMENT = 'local'
+   $env:RECOVERY_AUTH_FILE = Join-Path $recoveryDir 'recovery-token.txt'
+   $env:RECOVERY_AUTH_TOKEN = Read-Host 'Token de recuperación'
+   $env:RECOVERY_ADMIN_NAME = Read-Host 'Nombre del administrador'
+   $env:RECOVERY_ADMIN_EMAIL = Read-Host 'Correo del administrador'
+   $securePassword = Read-Host 'Contraseña nueva (mínimo 12 caracteres)' -AsSecureString
+   $passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
+   try {
+       $env:RECOVERY_ADMIN_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
+   } finally {
+       [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
+   }
+   ```
+
+   Use una contraseña nueva y robusta. PowerShell la oculta mientras se escribe; se conserva temporalmente en el entorno del proceso PHP. Ejecute una sola vez:
+
+   ```powershell
+   php 'Aplicacion/prototipo V3/scripts/recovery_admin.php'
+   ```
+
+   El script serializa las ejecuciones concurrentes, bloquea las inserciones concurrentes en `usuarios` y realiza la inserción dentro de una transacción. Si detecta usuarios existentes, errores o credenciales inválidas, no crea una cuenta. Si falla la eliminación del archivo al final, elimínelo manualmente inmediatamente; el alta ya habrá quedado confirmada.
+4. Compruebe el mensaje de éxito y que `usuarios` contiene exactamente el nuevo usuario con `rol='Administrador'` y `estado='Activo'`. Pruebe el inicio de sesión en la aplicación con el correo y contraseña elegidos. El login existente valida `password_hash` con `password_verify()`, regenera el ID de sesión y guarda el rol que usan los controles de acceso; las operaciones administrativas continuarán exigiendo una sesión autenticada con ese rol.
+5. Al terminar, incluso si el script informa un error, quite las variables temporales de la misma consola:
+
+   ```powershell
+   Remove-Item Env:RECOVERY_ENVIRONMENT, Env:RECOVERY_AUTH_FILE, Env:RECOVERY_AUTH_TOKEN
+   Remove-Item Env:RECOVERY_ADMIN_NAME, Env:RECOVERY_ADMIN_EMAIL, Env:RECOVERY_ADMIN_PASSWORD
+   ```
+
+   Después de probar el acceso, elimine `Aplicacion/prototipo V3/scripts/recovery_admin.php` del servidor o de la copia de trabajo si ya no se necesita. Nunca coloque el token bajo el document root; no reutilice el token ni ejecute este mecanismo contra producción.
+
 ### Usuarios demo
 
 | Rol | Correo |
